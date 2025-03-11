@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
 from db.database import session_manager
 
+from db.models import User, UserGroupAssociation, Chat, Group, Message
+
 
 class AbstractRepository(ABC):
     """
@@ -36,3 +38,27 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = select(self.model)
         res = await session.execute(stmt)
         return [row[0].to_read_model() for row in res.all()]
+
+
+# class MainRepository(SQLAlchemyRepository):
+#     model = Main
+
+
+class UserRepository(SQLAlchemyRepository):
+    model = User
+
+
+class UserGroupAssociationRepository(SQLAlchemyRepository):
+    model = UserGroupAssociation
+
+
+class ChatRepository(SQLAlchemyRepository):
+    model = Chat
+
+
+class GroupRepository(SQLAlchemyRepository):
+    model = Group
+
+
+class MessageRepository(SQLAlchemyRepository):
+    model = Message

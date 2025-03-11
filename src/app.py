@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from config import logger, settings, session_manager
 import sentry_sdk
 
-from routing.main import router
+from routing import main, chats, groups, messages, user_group_association, users
 
 sentry_sdk.init(
     dsn=settings.sentry_url,
@@ -23,8 +23,21 @@ async def lifespan(_apps: FastAPI):
         await session_manager.close_session()
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(router)
 
+# map(app.include_router,
+#     [
+#         # main.main,
+#         chats.chats,
+#         groups.groups,
+#         messages.messages,
+#         user_group_association.user_group_association,
+#         users.users
+#     ])
+app.include_router(chats.chats)
+app.include_router(groups.groups)
+app.include_router(messages.messages)
+app.include_router(user_group_association.user_group_association)
+app.include_router(users.users)
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 

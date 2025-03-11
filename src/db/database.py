@@ -1,7 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.future import select
 from config import settings
-from sqlalchemy import update, insert, delete
 from functools import wraps
 
 

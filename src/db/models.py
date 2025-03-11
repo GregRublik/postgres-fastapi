@@ -1,19 +1,22 @@
 from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, Table, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 
 
 Base = declarative_base()
 
 
-class Main(Base):
-    __tablename__ = "main"
+# class Main(Base):
+#     __tablename__ = "main"
 
 
-user_group_association = Table(
-    'user_group_association', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
-    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
-)
+class UserGroupAssociation(Base):
+    __tablename__ = 'user_group_association'
+
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    group_id = Column(Integer, ForeignKey('groups.id'), primary_key=True)
+
+    user = relationship("User", back_populates="group_associations")
+    group = relationship("Group", back_populates="user_associations")
 
 
 class User(Base):
@@ -25,7 +28,7 @@ class User(Base):
     password = Column(String, nullable=False)
 
     messages = relationship("Message", back_populates="sender")
-    groups = relationship("Group", secondary=user_group_association, back_populates="members")
+    group_associations = relationship("UserGroupAssociation", back_populates="user")
 
 
 class Chat(Base):
@@ -46,7 +49,7 @@ class Group(Base):
     creator_id = Column(Integer, ForeignKey('users.id'))
 
     creator = relationship("User", back_populates="created_groups")
-    members = relationship("User", secondary=user_group_association, back_populates="groups")
+    user_associations = relationship("UserGroupAssociation", back_populates="group")
     chats = relationship("Chat", back_populates="group")
 
 
@@ -62,13 +65,3 @@ class Message(Base):
 
     chat = relationship("Chat", back_populates="messages")
     sender = relationship("User", back_populates="messages")
-
-
-class UserGroups(Base):
-    __tablename__ = 'user_group'
-
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True),
-    group_id = Column(Integer, ForeignKey('groups.id'), primary_key=True)
-
-    user = relationship("User", back_populates="group_associations")
-    group = relationship("Group", back_populates="user_associations")

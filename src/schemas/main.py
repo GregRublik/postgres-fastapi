@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-
-
-class MainSchema(BaseModel):
-    pass
+# from pydantic import BaseModel
+#
+#
+# class MainSchema(BaseModel):
+#     pass

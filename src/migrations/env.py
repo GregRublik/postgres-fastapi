@@ -5,7 +5,7 @@ from sqlalchemy import pool
 from src.config import settings
 from alembic import context
 
-# from db.models import Models  # noqa
+from db.models import User, UserGroupAssociation, Chat, Group, Message  # noqa
 from db.models import Base
 
 config = context.config
