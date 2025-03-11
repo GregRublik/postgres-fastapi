@@ -1,9 +1,5 @@
 Для запуска приложения необходимо создать файл ".env" и установить в него переменные окружения:
-- APP_HOSTING_URL
-- APP_PORTAL_URL
-- APP_CLIENT_SECRET
-- APP_CLIENT_ID
-- APP_KEY_405
+
 - APP_SENTRY_URL
 - APP_PORT
 - DB_HOST
