@@ -12,6 +12,6 @@ class ChatService:
         chat_id = await self.repository.add_one(chat_dict)
         return chat_id
 
-    async def find_all(self, chat: Chat):
-        result = self.repository.find_all()
-        return result
+    # async def find_all(self, chat: Chat):
+    #     result = self.repository.find_all()
+    #     return result

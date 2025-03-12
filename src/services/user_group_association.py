@@ -12,6 +12,6 @@ class UserGroupAssociationService:
         group_id = await self.repository.add_one(group_dict)
         return group_id
 
-    async def find_all(self, user_group_association: UserGroupAssociation):
-        result = self.repository.find_all()
-        return result
+    # async def find_all(self, user_group_association: UserGroupAssociation):
+    #     result = self.repository.find_all()
+    #     return result

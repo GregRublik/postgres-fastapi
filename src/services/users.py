@@ -12,6 +12,6 @@ class UserService:
         user_id = await self.repository.add_one(user_dict)
         return user_id
 
-    async def find_all(self, user: User):
-        result = self.repository.find_all()
-        return result
+    # async def find_all(self, user: User):
+    #     result = self.repository.find_all()
+    #     return result

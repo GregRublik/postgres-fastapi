@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+from fastapi import Query
 
 
 class MessageBase(BaseModel):
@@ -30,13 +31,7 @@ class Message(MessageBase):
         from_attributes = True
 
 
-class MessageResponse(BaseModel):
-    id: int
+class MessageHistory(BaseModel):
     chat_id: int
-    sender_id: int
-    text: str
-    timestamp: datetime
-    is_read: bool
-
-    class Config:
-        from_attributes = True
+    limit: Optional[int] = Query(10, ge=1, description="Количество сообщений на странице")
+    offset: Optional[int] = Query(0, ge=0, description="Смещение для пагинации")

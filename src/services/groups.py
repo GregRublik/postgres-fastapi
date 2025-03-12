@@ -12,6 +12,6 @@ class GroupService:
         group_id = await self.repository.add_one(group_dict)
         return group_id
 
-    async def find_all(self, group: Group):
-        result = self.repository.find_all()
-        return result
+    # async def find_all(self, group: Group):
+    #     result = self.repository.find_all()
+    #     return result

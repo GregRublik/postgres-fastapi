@@ -12,11 +12,11 @@ class AbstractRepository(ABC):
     Aбстрактный репозиторий нужен чтобы при наследовании определяли его базовые методы работы с бд
     """
     @abstractmethod
-    async def add_one():
+    async def add_one(*args, **kwargs):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_all():
+    async def find_all(*args, **kwargs):
         raise NotImplementedError
 
 
@@ -62,3 +62,9 @@ class GroupRepository(SQLAlchemyRepository):
 
 class MessageRepository(SQLAlchemyRepository):
     model = Message
+
+    @session_manager
+    async def find_all(self, session: AsyncSession, ):
+        stmt = select(self.model)
+        res = await session.execute(stmt)
+        return [row[0].to_read_model() for row in res.all()]
