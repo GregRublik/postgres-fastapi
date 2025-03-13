@@ -6,7 +6,7 @@
 # from schemas.main import MainSchema
 # from services.main import MainService
 #
-# main = APIRouter(prefix="/main", tags=["main"])
+# main = APIRouter(prefix="/", tags=["main"])
 #
 #
 # @main.get("/add")

@@ -79,5 +79,6 @@ document.getElementById('registerButton').addEventListener('click', async (event
         return;
     }
 
-    await handleFormSubmit('register', 'register/', [email, name, password, password_check]);
+    // await handleFormSubmit('register', 'register/', [email, name, password]);
+    await handleFormSubmit('register', 'register/', [email, name, password]);
 });

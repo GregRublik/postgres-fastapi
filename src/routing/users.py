@@ -11,10 +11,10 @@ users = APIRouter(prefix="/users", tags=["users"])
 
 @users.post("/add")
 async def add_one(
-        message: UserCreate,
+        user: UserCreate,
         user_service: Annotated[UserService, Depends(users_service)]
 ):
-    user_id = await user_service.add_user(message)
+    user_id = await user_service.add_user(user)
     return {"user_id": user_id}
 
 

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import logger, settings, session_manager
 import sentry_sdk
 
-from routing import chats, groups, messages, user_group_association, users
+from routing import chats, groups, messages, user_group_association, users, main, auth
 
 sentry_sdk.init(
     dsn=settings.sentry_url,
@@ -38,6 +38,7 @@ app.include_router(groups.groups)
 app.include_router(messages.messages)
 app.include_router(user_group_association.user_group_association)
 app.include_router(users.users)
+app.include_router(auth.auth)
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
