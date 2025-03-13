@@ -18,5 +18,5 @@ class MessageService:
 
     async def find_history(self, chat: MessageHistory):
         history_dict = chat.model_dump()
-        history = await self.repository.find_all(history_dict)
+        history = await self.repository.find_history(history_dict)
         return history

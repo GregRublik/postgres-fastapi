@@ -19,6 +19,10 @@ class AbstractRepository(ABC):
     async def find_all(*args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
+    async def find_history(*args, **kwargs):
+        raise NotImplementedError
+
 
 class SQLAlchemyRepository(AbstractRepository):
     """
@@ -64,7 +68,13 @@ class MessageRepository(SQLAlchemyRepository):
     model = Message
 
     @session_manager
-    async def find_all(self, session: AsyncSession, ):
-        stmt = select(self.model)
+    async def find_all(self, session: AsyncSession, data: dict):
+        stmt = (
+            select(Message)
+            .where(Message.chat_id == data['chat_id'])
+            .limit(data['limit'])
+            .offset(data['offset'])
+            .order_by(Message.timestamp.asc())
+        )
         res = await session.execute(stmt)
         return [row[0].to_read_model() for row in res.all()]

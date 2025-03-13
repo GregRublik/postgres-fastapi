@@ -14,14 +14,14 @@ async def add_one(
         message: MessageCreate,
         message_service: Annotated[MessageService, Depends(messages_service)]
 ):
-   message_id = await message_service.add_message(message)
-   return {"message_id": message_id}
+    message_id = await message_service.add_message(message)
+    return {"message_id": message_id}
 
 
 @messages.get("/history/{chat_id}", response_model=List[Message])
 async def get_chat_history(
-    chat: MessageHistory,
-    message_service: Annotated[MessageService, Depends(messages_service)],
+        chat: MessageHistory,
+        message_service: Annotated[MessageService, Depends(messages_service)],
 ):
     history = await message_service.find_history(chat)
     return {"history": history}

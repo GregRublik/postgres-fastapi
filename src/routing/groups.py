@@ -14,8 +14,8 @@ async def add_one(
         group: GroupCreate,
         group_service: Annotated[GroupService, Depends(groups_service)]
 ):
-   group_id = await group_service.add_group(group)
-   return {"group_id": group_id}
+    group_id = await group_service.add_group(group)
+    return {"group_id": group_id}
 
 
 # @main.post("/get_all")

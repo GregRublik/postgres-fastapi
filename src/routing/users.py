@@ -14,8 +14,8 @@ async def add_one(
         message: UserCreate,
         user_service: Annotated[UserService, Depends(users_service)]
 ):
-   user_id = await user_service.add_user(message)
-   return {"user_id": user_id}
+    user_id = await user_service.add_user(message)
+    return {"user_id": user_id}
 
 
 # @main.post("/get_all")

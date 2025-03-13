@@ -2,10 +2,11 @@ import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from config import logger, settings, session_manager
 import sentry_sdk
 
-from routing import main, chats, groups, messages, user_group_association, users
+from routing import chats, groups, messages, user_group_association, users
 
 sentry_sdk.init(
     dsn=settings.sentry_url,
@@ -24,15 +25,14 @@ async def lifespan(_apps: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# map(app.include_router,
-#     [
-#         # main.main,
-#         chats.chats,
-#         groups.groups,
-#         messages.messages,
-#         user_group_association.user_group_association,
-#         users.users
-#     ])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(chats.chats)
 app.include_router(groups.groups)
 app.include_router(messages.messages)
