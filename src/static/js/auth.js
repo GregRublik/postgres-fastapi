@@ -46,11 +46,16 @@ const handleFormSubmit = async (formType, url, fields) => {
         return;
     }
 
-    const data = await sendRequest(url, formType === 'login'
-        ? {email: fields[0], password: fields[1]}
-        : {email: fields[0], name: fields[1], password: fields[2], password_check: fields[3]});
+    let data;
+    if (formType === 'login') {
+        data = { email: fields[0], password: fields[1] };
+    } else if (formType === 'register') {
+        data = { email: fields[0], name: fields[1], password: fields[2] };
+    }
 
-    if (data && formType === 'login') {
+    const responseData = await sendRequest(url, data);
+
+    if (responseData && formType === 'login') {
         window.location.href = '/chat';
     }
 };
@@ -79,6 +84,5 @@ document.getElementById('registerButton').addEventListener('click', async (event
         return;
     }
 
-    // await handleFormSubmit('register', 'register/', [email, name, password]);
     await handleFormSubmit('register', 'register/', [email, name, password]);
 });

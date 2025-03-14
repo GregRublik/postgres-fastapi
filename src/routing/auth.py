@@ -1,7 +1,13 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from authx import AuthX, AuthXConfig
 from config import templates
+from schemas.users import UserCreate
+from fastapi.responses import RedirectResponse
 
+from typing import Annotated
+
+from depends import users_service
+from services.users import UserService
 
 auth = APIRouter()
 config = AuthXConfig()
@@ -25,6 +31,9 @@ async def login(
 
 @auth.get("/register")
 async def register(
-        user:
+        user: UserCreate,
+        user_service: Annotated[UserService, Depends(users_service)]
 ):
-    pass
+    await user_service.add_user(user)
+    return RedirectResponse("/")
+

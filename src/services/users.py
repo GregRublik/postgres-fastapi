@@ -1,5 +1,5 @@
 from repositories.repository import AbstractRepository
-from schemas.users import UserCreate, User
+from schemas.users import UserCreate
 
 
 class UserService:
