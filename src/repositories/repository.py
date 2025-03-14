@@ -16,6 +16,10 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def find_one(*args, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
     async def find_all(*args, **kwargs):
         raise NotImplementedError
 
@@ -51,6 +55,16 @@ class SQLAlchemyRepository(AbstractRepository):
 class UserRepository(SQLAlchemyRepository):
     model = User
 
+    @session_manager
+    async def find_one(self, session: AsyncSession, data: dict):
+        stmt = (
+            select(self.model)
+            .where(self.model.email == data['email'])
+            .limit(limit=1)
+        )
+        res = await session.execute(stmt)
+        return res.one()
+
 
 class UserGroupAssociationRepository(SQLAlchemyRepository):
     model = UserGroupAssociation
@@ -70,11 +84,11 @@ class MessageRepository(SQLAlchemyRepository):
     @session_manager
     async def find_all(self, session: AsyncSession, data: dict):
         stmt = (
-            select(Message)
-            .where(Message.chat_id == data['chat_id'])
+            select(self.model)
+            .where(self.model.chat_id == data['chat_id'])
             .limit(data['limit'])
             .offset(data['offset'])
-            .order_by(Message.timestamp.asc())
+            .order_by(self.model.timestamp.asc())
         )
         res = await session.execute(stmt)
         return [row[0].to_read_model() for row in res.all()]

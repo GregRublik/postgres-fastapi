@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Request, Depends
-from authx import AuthX, AuthXConfig
-from config import templates
-from schemas.users import UserCreate
-from fastapi.responses import RedirectResponse
+from config import templates, settings
+from schemas.users import UserCreate, UserLogin
+from fastapi.responses import RedirectResponse, Response
 
 from typing import Annotated
 
@@ -10,16 +9,10 @@ from depends import users_service
 from services.users import UserService
 
 auth = APIRouter()
-config = AuthXConfig()
-config.JWT_SECRET_KEY = "SECRET_KEY"
-config.JWT_ACCESS_COOKIE_NAME = "my_access_token"
-config.JWT_TOKEN_LOCATION = ["cookies"]
-
-security = AuthX(config=config)
 
 
-@auth.get("/login")
-async def login(
+@auth.get("/auth")
+async def auth(
         request: Request
 ):
     return templates.TemplateResponse(
@@ -27,6 +20,17 @@ async def login(
         name="auth.html",
         context={}
     )
+
+
+@auth.get("/login")
+async def login(
+        user: UserLogin,
+        user_service: Annotated[UserService, Depends(users_service)],
+        response: Response
+):
+    token = await user_service.create_token(user)
+    response.set_cookie(settings.security.config.JWT_ACCESS_COOKIE_NAME, token)
+    return RedirectResponse("/")
 
 
 @auth.get("/register")
