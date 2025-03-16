@@ -5,10 +5,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 Base = declarative_base()
 
 
-# class Main(Base):
-#     __tablename__ = "main"
-
-
 class UserGroupAssociation(Base):
     __tablename__ = 'user_group_association'
 
@@ -28,6 +24,7 @@ class User(Base):
     password = Column(String, nullable=False)
 
     messages = relationship("Message", back_populates="sender")
+    created_groups = relationship("Group", back_populates="creator")
     group_associations = relationship("UserGroupAssociation", back_populates="user")
 
 
@@ -37,7 +34,9 @@ class Chat(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     type = Column(String, nullable=False)  # 'personal' или 'group'
+    group_id = Column(Integer, ForeignKey('groups.id'))  # Внешний ключ на Group
 
+    group = relationship("Group", back_populates="chats")  # Отношение к Group
     messages = relationship("Message", back_populates="chat")
 
 
@@ -50,7 +49,7 @@ class Group(Base):
 
     creator = relationship("User", back_populates="created_groups")
     user_associations = relationship("UserGroupAssociation", back_populates="group")
-    chats = relationship("Chat", back_populates="group")
+    chats = relationship("Chat", back_populates="group")  # Отношение к Chat
 
 
 class Message(Base):

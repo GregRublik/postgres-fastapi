@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
-from db.database import session_manager
+from db.database import async_session_maker
 
 from db.models import User, UserGroupAssociation, Chat, Group, Message
 
@@ -11,21 +10,23 @@ class AbstractRepository(ABC):
     """
     Aбстрактный репозиторий нужен чтобы при наследовании определяли его базовые методы работы с бд
     """
+    model = None
+
     @abstractmethod
-    async def add_one(*args, **kwargs):
+    async def add_one():
         raise NotImplementedError
 
     @abstractmethod
-    async def find_one(*args, **kwargs):
+    async def find_one():
         raise NotImplementedError
 
     @abstractmethod
-    async def find_all(*args, **kwargs):
+    async def find_all():
         raise NotImplementedError
 
-    @abstractmethod
-    async def find_history(*args, **kwargs):
-        raise NotImplementedError
+    # @abstractmethod
+    # async def find_history(*args, **kwargs):
+    #     raise NotImplementedError
 
 
 class SQLAlchemyRepository(AbstractRepository):
@@ -34,18 +35,20 @@ class SQLAlchemyRepository(AbstractRepository):
     """
     model = None
 
-    @session_manager
-    async def add_one(self, session: AsyncSession, data: dict):
-        stmt = insert(self.model).values(**data).returning(self.model)
-        res = await session.execute(stmt)
-        await session.commit()
-        return res.scalar_one()
+    # @session_manager
+    async def add_one(self, data: dict):
+        async with async_session_maker() as session:
+            stmt = insert(self.model).values(**data).returning(self.model)
+            res = await session.execute(stmt)
+            await session.commit()
+            return res.scalar_one()
 
-    @session_manager
-    async def find_all(self, session: AsyncSession):
-        stmt = select(self.model)
-        res = await session.execute(stmt)
-        return [row[0].to_read_model() for row in res.all()]
+    # @session_manager
+    async def find_all(self):
+        async with async_session_maker() as session:
+            stmt = select(self.model)
+            res = await session.execute(stmt)
+            return [row[0].to_read_model() for row in res.all()]
 
 
 # class MainRepository(SQLAlchemyRepository):
@@ -55,15 +58,16 @@ class SQLAlchemyRepository(AbstractRepository):
 class UserRepository(SQLAlchemyRepository):
     model = User
 
-    @session_manager
-    async def find_one(self, session: AsyncSession, data: dict):
-        stmt = (
-            select(self.model)
-            .where(self.model.email == data['email'])
-            .limit(limit=1)
-        )
-        res = await session.execute(stmt)
-        return res.one()
+    # @session_manager
+    async def find_one(self, data: dict):
+        async with async_session_maker() as session:
+            stmt = (
+                select(self.model)
+                .where(self.model.email == data['email'])
+                .limit(limit=1)
+            )
+            res = await session.execute(stmt)
+            return res.one()
 
 
 class UserGroupAssociationRepository(SQLAlchemyRepository):
@@ -81,14 +85,14 @@ class GroupRepository(SQLAlchemyRepository):
 class MessageRepository(SQLAlchemyRepository):
     model = Message
 
-    @session_manager
-    async def find_all(self, session: AsyncSession, data: dict):
-        stmt = (
-            select(self.model)
-            .where(self.model.chat_id == data['chat_id'])
-            .limit(data['limit'])
-            .offset(data['offset'])
-            .order_by(self.model.timestamp.asc())
-        )
-        res = await session.execute(stmt)
-        return [row[0].to_read_model() for row in res.all()]
+    async def find_all(self, data: dict):
+        async with async_session_maker() as session:
+            stmt = (
+                select(self.model)
+                .where(self.model.chat_id == data['chat_id'])
+                .limit(data['limit'])
+                .offset(data['offset'])
+                .order_by(self.model.timestamp.asc())
+            )
+            res = await session.execute(stmt)
+            return [row[0].to_read_model() for row in res.all()]

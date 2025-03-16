@@ -1,24 +1,37 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends
-
-# from depends import main_service
-# from schemas.main import MainSchema
-# from services.main import MainService
+from fastapi import Cookie, APIRouter, Depends, Request, WebSocket, WebSocketDisconnect
+from typing import Dict, Annotated
+from config import settings, templates
+import asyncio
 
 main = APIRouter(tags=["main"])
 
+active_connections: Dict[int, WebSocket] = {}
 
+
+# @main.get("/", dependencies=[Depends(settings.security.access_token_required)])
 @main.get("/")
 async def index(
-        main: MainSchema,
-        main_service: Annotated[MainService, Depends(main_service)]
+        request: Request,
+        cookie: Annotated[str | None, Cookie()] = None
 ):
-   main_id = await main_service.add_main(main)
-   return {"task_id": main_id}
+    print(cookie)
+    return templates.TemplateResponse(request, "chat.html", context={
+        'user': {'id': '1'},
+        'users_all': [{'id': '2', 'name': 'zalupa'}]
+    })
 
 
-# @main.post("/get_all")
-# async def get_all(main: MainSchema, main_service: Annotated[MainService, Depends(main_service)]) -> MainSchema:
-#    book = book_service.create_book()
-#    return book
+# WebSocket эндпоинт для соединений
+@main.websocket("/ws/{user_id}", dependencies=[Depends(settings.security.access_token_required)])
+async def websocket_endpoint(websocket: WebSocket, user_id: int):
+    # Принимаем WebSocket-соединение
+    await websocket.accept()
+    # Сохраняем активное соединение для пользователя
+    active_connections[user_id] = websocket
+    try:
+        while True:
+            # Просто поддерживаем соединение активным (1 секунда паузы)
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        # Удаляем пользователя из активных соединений при отключении
+        active_connections.pop(user_id, None)

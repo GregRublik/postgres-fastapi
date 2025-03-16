@@ -12,7 +12,7 @@ auth = APIRouter()
 
 
 @auth.get("/auth")
-async def auth(
+async def authorization(
         request: Request
 ):
     return templates.TemplateResponse(
@@ -22,22 +22,24 @@ async def auth(
     )
 
 
-@auth.get("/login")
+@auth.post("/login")
 async def login(
         user: UserLogin,
         user_service: Annotated[UserService, Depends(users_service)],
         response: Response
 ):
-    token = await user_service.create_token(user)
+    print(user.model_dump())
+    # token = await user_service.create_token(user)
+    token = "token1234"
     response.set_cookie(settings.security.config.JWT_ACCESS_COOKIE_NAME, token)
     return RedirectResponse("/")
 
 
-@auth.get("/register")
+@auth.post("/register")
 async def register(
         user: UserCreate,
         user_service: Annotated[UserService, Depends(users_service)]
 ):
+    print(user.model_dump())
     await user_service.add_user(user)
-    return RedirectResponse("/")
-
+    return RedirectResponse("/auth")

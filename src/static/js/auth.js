@@ -67,7 +67,7 @@ document.getElementById('loginButton').addEventListener('click', async (event) =
     const email = document.querySelector('#loginForm input[type="email"]').value;
     const password = document.querySelector('#loginForm input[type="password"]').value;
 
-    await handleFormSubmit('login', 'login/', [email, password]);
+    await handleFormSubmit('login', 'login', [email, password]);
 });
 
 // Обработка формы регистрации
@@ -84,5 +84,5 @@ document.getElementById('registerButton').addEventListener('click', async (event
         return;
     }
 
-    await handleFormSubmit('register', 'register/', [email, name, password]);
+    await handleFormSubmit('register', 'register', [email, name, password]);
 });

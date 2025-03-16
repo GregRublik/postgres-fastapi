@@ -36,12 +36,12 @@ class DbSettings(BaseSettings):
         return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
 
-class JWTConfig(AuthXConfig):
-    JWT_SECRET_KEY: int = Field(json_schema_extra={'env': 'JWT_SECRET_KEY'})
-    JWT_ACCESS_COOKIE_NAME: str = Field(json_schema_extra={'env': 'JWT_ACCESS_COOKIE_NAME'})
-    JWT_TOKEN_LOCATION: str = Field(json_schema_extra={'env': 'JWT_TOKEN_LOCATION'})
-
-    model_config = SettingsConfigDict(env_prefix="JWT_", env_file=".env", extra="ignore")
+# class JWTConfig(AuthXConfig):
+#     JWT_SECRET_KEY: int = Field(json_schema_extra={'env': 'JWT_SECRET_KEY'})
+#     JWT_ACCESS_COOKIE_NAME: str = Field(json_schema_extra={'env': 'JWT_ACCESS_COOKIE_NAME'})
+#     JWT_TOKEN_LOCATION: str = Field(json_schema_extra={'env': 'JWT_TOKEN_LOCATION'})
+#
+#     model_config = SettingsConfigDict(env_prefix="JWT_", env_file=".env", extra="ignore")
 
 
 class Settings(BaseSettings):
@@ -83,4 +83,12 @@ templates = Jinja2Templates(directory="src/templates")
 
 session_manager = SessionManager.get_instance()
 
-settings = Settings(db=DbSettings(), security=AuthX(config=JWTConfig()))
+config = AuthXConfig()
+config.JWT_SECRET_KEY = "SECRET_KEY"
+config.JWT_TOKEN_LOCATION = ["cookies"]
+config.JWT_ACCESS_COOKIE_NAME = "my_secret_key"
+
+settings = Settings(
+    db=DbSettings(),
+    security=AuthX(config=config)
+)

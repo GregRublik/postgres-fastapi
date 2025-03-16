@@ -9,16 +9,21 @@ engine = create_async_engine(
     max_overflow=10
 )
 
-AsyncSessionLocal = async_sessionmaker(
+# AsyncSessionLocal = async_sessionmaker(
+#     bind=engine,
+#     expire_on_commit=False,
+#     class_=AsyncSession
+# )
+
+async_session_maker = async_sessionmaker(
     bind=engine,
     expire_on_commit=False,
     class_=AsyncSession
 )
 
-
-def session_manager(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        async with AsyncSessionLocal() as session:  # Открываем сессию
-            return await func(session, *args, **kwargs)  # Передаем сессию в функцию
-    return wrapper
+# def session_manager(func):
+#     @wraps(func)
+#     async def wrapper(*args, **kwargs):
+#         async with AsyncSessionLocal() as session:  # Открываем сессию
+#             return await func(*args, session, **kwargs)  # Передаем сессию в функцию
+#     return wrapper

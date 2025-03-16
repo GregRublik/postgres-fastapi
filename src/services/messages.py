@@ -20,3 +20,4 @@ class MessageService:
         history_dict = chat.model_dump()
         history = await self.repository.find_history(history_dict)
         return history
+
