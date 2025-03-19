@@ -46,7 +46,7 @@ async def register(
     except UserAlreadyExistsException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail='User already exists'
+            detail='User already exists with this email'
         )
     refresh_token = "refresh_token1234"
     access_token = "access_token1234"
