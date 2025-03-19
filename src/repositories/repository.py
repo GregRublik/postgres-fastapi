@@ -19,20 +19,16 @@ class AbstractRepository(ABC):
     model = None
 
     @abstractmethod
-    async def add_one():
+    async def add_one(self, data: dict):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_one():
+    async def find_one(self, data: dict):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_all():
+    async def find_all(self):
         raise NotImplementedError
-
-    # @abstractmethod
-    # async def find_history(*args, **kwargs):
-    #     raise NotImplementedError
 
 
 class SQLAlchemyRepository(AbstractRepository):
@@ -41,7 +37,6 @@ class SQLAlchemyRepository(AbstractRepository):
     """
     model = None
 
-    # @session_manager
     async def add_one(self, data: dict):
         async with async_session_maker() as session:
             stmt = insert(self.model).values(**data).returning(self.model)
@@ -49,12 +44,17 @@ class SQLAlchemyRepository(AbstractRepository):
             await session.commit()
             return res.scalar_one()
 
-    # @session_manager
     async def find_all(self):
         async with async_session_maker() as session:
             stmt = select(self.model)
             res = await session.execute(stmt)
             return [row[0].to_read_model() for row in res.all()]
+
+    async def find_one(self, data: dict):
+        async with async_session_maker() as session:
+            stmt = select(self.model).where(**data)
+            res = await session.execute(stmt)
+            return res.one()
 
 
 # class MainRepository(SQLAlchemyRepository):
@@ -64,7 +64,6 @@ class SQLAlchemyRepository(AbstractRepository):
 class UserRepository(SQLAlchemyRepository):
     model = User
 
-    # @session_manager
     async def find_one(self, data: dict):
         async with async_session_maker() as session:
             stmt = (
