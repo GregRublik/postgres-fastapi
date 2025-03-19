@@ -33,10 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chats.chats)
-app.include_router(groups.groups)
-app.include_router(messages.messages)
-app.include_router(user_group_association.user_group_association)
+# app.include_router(chats.chats)
+# app.include_router(groups.groups)
+# app.include_router(messages.messages)
+# app.include_router(user_group_association.user_group_association)
 app.include_router(users.users)
 app.include_router(auth.auth)
 app.include_router(main.main)

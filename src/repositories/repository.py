@@ -3,7 +3,13 @@ from abc import ABC, abstractmethod
 from sqlalchemy import insert, select
 from db.database import async_session_maker
 
-from db.models import User, UserGroupAssociation, Chat, Group, Message
+from db.models import (
+    User,
+    # UserGroupAssociation,
+    # Chat,
+    # Group,
+    # Message
+)
 
 
 class AbstractRepository(ABC):
@@ -70,29 +76,29 @@ class UserRepository(SQLAlchemyRepository):
             return res.one()
 
 
-class UserGroupAssociationRepository(SQLAlchemyRepository):
-    model = UserGroupAssociation
-
-
-class ChatRepository(SQLAlchemyRepository):
-    model = Chat
-
-
-class GroupRepository(SQLAlchemyRepository):
-    model = Group
-
-
-class MessageRepository(SQLAlchemyRepository):
-    model = Message
-
-    async def find_all(self, data: dict):
-        async with async_session_maker() as session:
-            stmt = (
-                select(self.model)
-                .where(self.model.chat_id == data['chat_id'])
-                .limit(data['limit'])
-                .offset(data['offset'])
-                .order_by(self.model.timestamp.asc())
-            )
-            res = await session.execute(stmt)
-            return [row[0].to_read_model() for row in res.all()]
+# class UserGroupAssociationRepository(SQLAlchemyRepository):
+#     model = UserGroupAssociation
+#
+#
+# class ChatRepository(SQLAlchemyRepository):
+#     model = Chat
+#
+#
+# class GroupRepository(SQLAlchemyRepository):
+#     model = Group
+#
+#
+# class MessageRepository(SQLAlchemyRepository):
+#     model = Message
+#
+#     async def find_all(self, data: dict):
+#         async with async_session_maker() as session:
+#             stmt = (
+#                 select(self.model)
+#                 .where(self.model.chat_id == data['chat_id'])
+#                 .limit(data['limit'])
+#                 .offset(data['offset'])
+#                 .order_by(self.model.timestamp.asc())
+#             )
+#             res = await session.execute(stmt)
+#             return [row[0].to_read_model() for row in res.all()]

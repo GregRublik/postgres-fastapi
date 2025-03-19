@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     sentry_url: str = Field(json_schema_extra={'env': 'APP_SENTRY_URL'})
 
     db: DbSettings
-    security: AuthX
+    # security: AuthX
 
     model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env", extra="ignore")
 
@@ -83,12 +83,12 @@ templates = Jinja2Templates(directory="src/templates")
 
 session_manager = SessionManager.get_instance()
 
-config = AuthXConfig()
-config.JWT_SECRET_KEY = "SECRET_KEY"
-config.JWT_TOKEN_LOCATION = ["cookies"]
-config.JWT_ACCESS_COOKIE_NAME = "my_secret_key"
+# config = AuthXConfig()
+# config.JWT_SECRET_KEY = "SECRET_KEY"
+# config.JWT_TOKEN_LOCATION = ["cookies"]
+# config.JWT_ACCESS_COOKIE_NAME = "my_secret_key"
 
 settings = Settings(
     db=DbSettings(),
-    security=AuthX(config=config)
+    # security=AuthX(config=config)
 )
