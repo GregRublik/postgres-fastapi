@@ -25,13 +25,13 @@ async def lifespan(_apps: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # app.include_router(chats.chats)
 # app.include_router(groups.groups)
@@ -39,7 +39,7 @@ app.add_middleware(
 # app.include_router(user_group_association.user_group_association)
 app.include_router(users.users)
 app.include_router(auth.auth)
-app.include_router(main.main)
+# app.include_router(main.main)
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             log_config="src/logs/log_config.json",
             use_colors=True,
             log_level="info",
-            loop="asyncio",
+            loop="asyncio"
         )
     except Exception as e:
         logger.error(f"Error launch app: {e}")

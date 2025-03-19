@@ -21,17 +21,17 @@ async def index(
     })
 
 
-# WebSocket эндпоинт для соединений
-@main.websocket("/ws/{user_id}", dependencies=[Depends(settings.security.access_token_required)])
-async def websocket_endpoint(websocket: WebSocket, user_id: int):
-    # Принимаем WebSocket-соединение
-    await websocket.accept()
-    # Сохраняем активное соединение для пользователя
-    active_connections[user_id] = websocket
-    try:
-        while True:
-            # Просто поддерживаем соединение активным (1 секунда паузы)
-            await asyncio.sleep(1)
-    except WebSocketDisconnect:
-        # Удаляем пользователя из активных соединений при отключении
-        active_connections.pop(user_id, None)
+# # WebSocket эндпоинт для соединений
+# @main.websocket("/ws/{user_id}", dependencies=[Depends(settings.security.access_token_required)])
+# async def websocket_endpoint(websocket: WebSocket, user_id: int):
+#     # Принимаем WebSocket-соединение
+#     await websocket.accept()
+#     # Сохраняем активное соединение для пользователя
+#     active_connections[user_id] = websocket
+#     try:
+#         while True:
+#             # Просто поддерживаем соединение активным (1 секунда паузы)
+#             await asyncio.sleep(1)
+#     except WebSocketDisconnect:
+#         # Удаляем пользователя из активных соединений при отключении
+#         active_connections.pop(user_id, None)

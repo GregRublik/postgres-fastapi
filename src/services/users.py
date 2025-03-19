@@ -1,6 +1,7 @@
 from repositories.repository import AbstractRepository, UserRepository
 from schemas.users import UserCreate, UserLogin
 from config import settings
+from exeptions import UserAlreadyExistsException, ModelAlreadyExistsException
 
 
 class UserService:
@@ -10,8 +11,12 @@ class UserService:
 
     async def add_user(self, user: UserCreate):
         user_dict = user.model_dump()
-        user_id = await self.repository.add_one(user_dict)
-        return user_id
+
+        try:
+            new_user = await self.repository.add_one(user_dict)
+            return new_user
+        except ModelAlreadyExistsException:
+            raise UserAlreadyExistsException
 
     # async def create_token(self, user: UserLogin):
     #     user_dict = user.model_dump()

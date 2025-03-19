@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from sqlalchemy import insert, select
+from sqlalchemy.exc import IntegrityError
 from db.database import async_session_maker
 
 from db.models import (
@@ -10,6 +11,7 @@ from db.models import (
     # Group,
     # Message
 )
+from exeptions import UserAlreadyExistsException, ModelAlreadyExistsException
 
 
 class AbstractRepository(ABC):
@@ -40,9 +42,12 @@ class SQLAlchemyRepository(AbstractRepository):
     async def add_one(self, data: dict):
         async with async_session_maker() as session:
             stmt = insert(self.model).values(**data).returning(self.model)
-            res = await session.execute(stmt)
-            await session.commit()
-            return res.scalar_one()
+            try:
+                res = await session.execute(stmt)
+                await session.commit()
+                return res.scalar_one()
+            except IntegrityError:
+                raise ModelAlreadyExistsException
 
     async def find_all(self):
         async with async_session_maker() as session:
@@ -63,6 +68,16 @@ class SQLAlchemyRepository(AbstractRepository):
 
 class UserRepository(SQLAlchemyRepository):
     model = User
+
+    async def add_one(self, data: dict):
+        async with async_session_maker() as session:
+            stmt = insert(self.model).values(**data).returning(self.model)
+            try:
+                res = await session.execute(stmt)
+                await session.commit()
+                return res.scalar_one()
+            except IntegrityError as e:
+                raise UserAlreadyExistsException('Такой пользователь уже существует')
 
     async def find_one(self, data: dict):
         async with async_session_maker() as session:

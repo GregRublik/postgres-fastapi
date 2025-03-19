@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, HTTPException, status
 from config import templates, settings
 from schemas.users import UserCreate, UserLogin
 from fastapi.responses import RedirectResponse, Response
@@ -7,6 +7,7 @@ from typing import Annotated
 
 from depends import users_service
 from services.users import UserService
+from exeptions import UserAlreadyExistsException
 
 auth = APIRouter()
 
@@ -30,16 +31,26 @@ async def login(
 ):
     print(user.model_dump())
     # token = await user_service.create_token(user)
-    token = "token1234"
-    response.set_cookie(settings.security.config.JWT_ACCESS_COOKIE_NAME, token)
-    return RedirectResponse("/")
+    return {}
 
 
 @auth.post("/register")
 async def register(
         user: UserCreate,
-        user_service: Annotated[UserService, Depends(users_service)]
+        user_service: Annotated[UserService, Depends(users_service)],
+        response: Response
 ):
     print(user.model_dump())
-    await user_service.add_user(user)
-    return RedirectResponse("/auth")
+    try:
+        new_user = await user_service.add_user(user)
+    except UserAlreadyExistsException:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='User already exists'
+        )
+    refresh_token = "refresh_token1234"
+    access_token = "access_token1234"
+    response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
+    response.set_cookie(settings.jwt.access_token_name, access_token)
+
+    return {'new_user': new_user}
