@@ -6,7 +6,7 @@ from repositories.repository import (
     # GroupRepository,
     # MessageRepository
     )
-from services import main, chats, groups, messages, user_group_association, users
+from services import main, chats, groups, messages, user_group_association, users, jwt_services
 
 
 # def main_service():
@@ -31,3 +31,7 @@ from services import main, chats, groups, messages, user_group_association, user
 
 def users_service():
     return users.UserService(UserRepository)
+
+
+def jwt_service():
+    return jwt_services.JWTService()

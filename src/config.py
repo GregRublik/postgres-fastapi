@@ -4,6 +4,9 @@ from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from fastapi.templating import Jinja2Templates
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.parent
 
 logger.add(
     "src/logs/debug.log",
@@ -39,6 +42,9 @@ class DbSettings(BaseSettings):
 class JWTConfig(BaseSettings):
     refresh_token_name: str = Field(json_schema_extra={'env': 'JWT_REFRESH_TOKEN_NAME'})
     access_token_name: str = Field(json_schema_extra={'env': 'JWT_ACCESS_TOKEN_NAME'})
+    private_key_path: Path = BASE_DIR / 'private_key.ppk'
+    public_key_path: Path = BASE_DIR / 'public_key'
+    algorithm: str = Field(json_schema_extra={'env': 'JWT_ALGORITHM'})
 
     model_config = SettingsConfigDict(env_prefix="JWT_", env_file=".env", extra="ignore")
 

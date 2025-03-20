@@ -26,12 +26,18 @@ async def authorization(
 @auth.post("/login")
 async def login(
         user: UserLogin,
-        user_service: Annotated[UserService, Depends(users_service)],
+        jwt_service: Annotated[UserService, Depends(users_service)],
         response: Response
 ):
     print(user.model_dump())
+
     # token = await user_service.create_token(user)
-    return {}
+    if user.email == "" and user.password == "":
+        refresh_token = ""
+        access_token = ""
+        response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
+        response.set_cookie(settings.jwt.access_token_name, access_token)
+        return Response(status_code=200)
 
 
 @auth.post("/register")
