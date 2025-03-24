@@ -45,6 +45,8 @@ class JWTConfig(BaseSettings):
     private_key_path: Path = BASE_DIR / 'jwt-private.pem'
     public_key_path: Path = BASE_DIR / 'jwt-public.pem'
     algorithm: str = Field(json_schema_extra={'env': 'JWT_ALGORITHM'})
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 30
 
     model_config = SettingsConfigDict(env_prefix="JWT_", env_file=".env", extra="ignore")
 
