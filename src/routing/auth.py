@@ -7,6 +7,7 @@ from typing import Annotated
 
 from depends import users_service
 from services.users import UserService
+from services.jwt_services import JWTService
 from exeptions import UserAlreadyExistsException
 
 auth = APIRouter()
@@ -30,7 +31,7 @@ async def login(
         response: Response
 ):
     print(user.model_dump())
-
+    jwt_service.
     # token = await user_service.create_token(user)
     if user.email == "" and user.password == "":
         refresh_token = ""

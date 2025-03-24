@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+from typing import Optional, Dict, Any
 
 from config import settings
 import jwt
@@ -8,35 +8,40 @@ import bcrypt
 from schemas.users import UserCreate, UserLogin
 
 
-def encode_jwt(
-    payload: dict,
-    private_key: str = settings.jwt.private_key_path.read_text(),
-    algorithm: str = settings.jwt.algorithm,
-    expire_minutes: int = settings.jwt.access_token_expire_minutes,
-    expire_timedelta: timedelta | None = None,
+async def encode_jwt(
+        payload: Dict[str, Any],
+        private_key: str = settings.jwt.private_key_path.read_text(),
+        algorithm: str = settings.jwt.algorithm,
+        expire_minutes: int = settings.jwt.access_token_expire_minutes,
+        expire_timedelta: Optional[timedelta] = None,
 ) -> str:
     to_encode = payload.copy()
     now = datetime.utcnow()
-    if expire_timedelta:
-        expire = now + expire_timedelta
-    else:
-        expire = now + timedelta(minutes=expire_minutes)
+
+    expire = (
+        now + expire_timedelta
+        if expire_timedelta
+        else now + timedelta(minutes=expire_minutes)
+    )
+
     to_encode.update(
         exp=expire,
         iat=now,
     )
+
     encoded = jwt.encode(
         to_encode,
         private_key,
         algorithm=algorithm,
     )
+
     return encoded
 
 
 def decode_jwt(
     token: str | bytes,
-    public_key: str = settings.auth_jwt.public_key_path.read_text(),
-    algorithm: str = settings.auth_jwt.algorithm,
+    public_key: str = settings.jwt.public_key_path.read_text(),
+    algorithm: str = settings.jwt.algorithm,
 ) -> dict:
     decoded = jwt.decode(
         token,
@@ -73,5 +78,5 @@ class JWTService:
         jwt_payload = {
             "sub": user.email,
         }
-        return encode_jwt(jwt_payload)
+        return await encode_jwt(jwt_payload)
 

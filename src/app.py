@@ -39,7 +39,7 @@ app = FastAPI(lifespan=lifespan)
 # app.include_router(user_group_association.user_group_association)
 app.include_router(users.users)
 app.include_router(auth.auth)
-# app.include_router(main.main)
+app.include_router(main.main)
 
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
