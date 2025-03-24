@@ -42,8 +42,8 @@ class DbSettings(BaseSettings):
 class JWTConfig(BaseSettings):
     refresh_token_name: str = Field(json_schema_extra={'env': 'JWT_REFRESH_TOKEN_NAME'})
     access_token_name: str = Field(json_schema_extra={'env': 'JWT_ACCESS_TOKEN_NAME'})
-    private_key_path: Path = BASE_DIR / 'private_key.ppk'
-    public_key_path: Path = BASE_DIR / 'public_key'
+    private_key_path: Path = BASE_DIR / 'jwt-private.pem'
+    public_key_path: Path = BASE_DIR / 'jwt-public.pem'
     algorithm: str = Field(json_schema_extra={'env': 'JWT_ALGORITHM'})
 
     model_config = SettingsConfigDict(env_prefix="JWT_", env_file=".env", extra="ignore")
