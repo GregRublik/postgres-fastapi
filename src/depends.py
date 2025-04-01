@@ -33,5 +33,5 @@ def users_service():
     return users.UserService(UserRepository)
 
 
-def jwt_service():
+def get_jwt_service():
     return jwt_services.JWTService()

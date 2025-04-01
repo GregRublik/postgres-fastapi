@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 
 from config import settings
+from fastapi import Cookie
 import jwt
 import bcrypt
 
@@ -10,13 +11,13 @@ from schemas.users import UserCreate, UserLogin
 
 async def encode_jwt(
         payload: Dict[str, Any],
+        expire_minutes: int,
         private_key: str = settings.jwt.private_key_path.read_text(),
         algorithm: str = settings.jwt.algorithm,
-        expire_minutes: int = settings.jwt.access_token_expire_minutes,
         expire_timedelta: Optional[timedelta] = None,
 ) -> str:
     to_encode = payload.copy()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     expire = (
         now + expire_timedelta
@@ -38,7 +39,7 @@ async def encode_jwt(
     return encoded
 
 
-def decode_jwt(
+async def decode_jwt(
     token: str | bytes,
     public_key: str = settings.jwt.public_key_path.read_text(),
     algorithm: str = settings.jwt.algorithm,
@@ -51,32 +52,46 @@ def decode_jwt(
     return decoded
 
 
-def hash_password(
-    password: str,
-) -> bytes:
-    salt = bcrypt.gensalt()
-    pwd_bytes: bytes = password.encode()
-    return bcrypt.hashpw(pwd_bytes, salt)
-
-
-def validate_password(
-    password: str,
-    hashed_password: bytes,
-) -> bool:
-    return bcrypt.checkpw(
-        password=password.encode(),
-        hashed_password=hashed_password,
-    )
+# async def get_current_user(
+#     access_token: str = Cookie(None, alias=settings.jwt.access_token_name),
+#     user_service: UserService = Depends(users_service)
+# ):
+#     pass
 
 
 class JWTService:
 
-    # def __init__(self, repository: AbstractRepository):
-    #     self.repository: AbstractRepository = repository()
-
-    async def create_access_token(self, user: UserCreate | UserLogin):
-        jwt_payload = {
+    @staticmethod
+    async def create_access_token(user: UserCreate | UserLogin):
+        payload = {
             "sub": user.email,
+            "type": "access"
         }
-        return await encode_jwt(jwt_payload)
+        return await encode_jwt(payload, 30)
+
+    @staticmethod
+    async def create_refresh_token(user: UserCreate | UserLogin):
+        payload = {
+            "sub": user.email,
+            "type": "refresh"
+        }
+        return await encode_jwt(payload, 43200)
+
+    @staticmethod
+    async def validate_password(
+            password: str,
+            hashed_password: bytes,
+    ) -> bool:
+        return bcrypt.checkpw(
+            password=password.encode(),
+            hashed_password=hashed_password,
+        )
+
+    @staticmethod
+    async def hash_password(
+            password: str,
+    ) -> bytes:
+        salt = bcrypt.gensalt()
+        pwd_bytes: bytes = password.encode()
+        return bcrypt.hashpw(pwd_bytes, salt)
 

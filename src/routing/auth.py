@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse, Response
 
 from typing import Annotated
 
-from depends import users_service
+from depends import users_service, get_jwt_service
 from services.users import UserService
 from services.jwt_services import JWTService
 from exeptions import UserAlreadyExistsException
@@ -27,27 +27,32 @@ async def authorization(
 @auth.post("/login")
 async def login(
         user: UserLogin,
-        jwt_service: Annotated[UserService, Depends(users_service)],
+        user_service: Annotated[UserService, Depends(users_service)],
+        jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
         response: Response
 ):
-    print(user.model_dump())
-    jwt_service.
-    # token = await user_service.create_token(user)
-    if user.email == "" and user.password == "":
-        refresh_token = ""
-        access_token = ""
-        response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
-        response.set_cookie(settings.jwt.access_token_name, access_token)
-        return Response(status_code=200)
+    db_user = await user_service.get_user_by_email(user)
+    if not db_user or not jwt_service.validate_password(user.password, db_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+    access_token = await jwt_service.create_access_token(user)
+    refresh_token = await jwt_service.create_refresh_token(user)
+    response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
+    response.set_cookie(settings.jwt.access_token_name, access_token)
+    return Response(status_code=200)
 
 
 @auth.post("/register")
 async def register(
         user: UserCreate,
         user_service: Annotated[UserService, Depends(users_service)],
+        jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
         response: Response
 ):
-    print(user.model_dump())
+    hashed_password = await jwt_service.hash_password(user.password)
+    user.password = hashed_password
     try:
         new_user = await user_service.add_user(user)
     except UserAlreadyExistsException:
@@ -55,9 +60,25 @@ async def register(
             status_code=status.HTTP_409_CONFLICT,
             detail='User already exists with this email'
         )
-    refresh_token = "refresh_token1234"
-    access_token = "access_token1234"
-    response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
-    response.set_cookie(settings.jwt.access_token_name, access_token)
+    access_token = await jwt_service.create_access_token(user)
+    refresh_token = await jwt_service.create_refresh_token(user)
+    response.set_cookie(
+        key=settings.jwt.refresh_token_name,
+        value=refresh_token
+        )
+    response.set_cookie(
+        key=settings.jwt.access_token_name,
+        value=access_token,
+        # httponly=True,  # Запрещает доступ к кукам через JavaScript (через document.cookie).
+        # secure=settings.jwt.secure_cookies,  # Куки будут передаваться только по HTTPS соединению.
+        # samesite=settings.jwt.same_site  # Контролирует отправку кук при межсайтовых запросах. (Strict|Lax|None)
+    )
 
     return {'new_user': new_user}
+
+
+@auth.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(settings.jwt.access_token_name)
+    response.delete_cookie(settings.jwt.refresh_token_name)
+    return RedirectResponse(url="/auth")
