@@ -1,5 +1,6 @@
 from fastapi import Cookie, APIRouter, Depends, Request, WebSocket, WebSocketDisconnect
 from typing import Dict, Annotated
+from auth import get_current_user
 from config import settings, templates
 import asyncio
 

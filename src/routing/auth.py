@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException, status
+from fastapi import APIRouter, Request, Depends, HTTPException, status, Cookie
 from config import templates, settings
 from schemas.users import UserCreate, UserLogin
 from fastapi.responses import RedirectResponse, Response
@@ -7,10 +7,17 @@ from typing import Annotated
 
 from depends import users_service, get_jwt_service
 from services.users import UserService
-from services.jwt_services import JWTService
+from services.jwt_services import JWTService, decode_jwt
 from exeptions import UserAlreadyExistsException
 
 auth = APIRouter()
+
+
+async def get_current_user(
+    access_token: str = Cookie(None, alias=settings.jwt.access_token_name),
+):
+    access_token = await decode_jwt(token=access_token)
+    print(access_token)
 
 
 @auth.get("/auth")

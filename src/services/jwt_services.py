@@ -40,9 +40,9 @@ async def encode_jwt(
 
 
 async def decode_jwt(
-    token: str | bytes,
-    public_key: str = settings.jwt.public_key_path.read_text(),
-    algorithm: str = settings.jwt.algorithm,
+        token: str | bytes,
+        public_key: str = settings.jwt.public_key_path.read_text(),
+        algorithm: str = settings.jwt.algorithm,
 ) -> dict:
     decoded = jwt.decode(
         token,
@@ -50,13 +50,6 @@ async def decode_jwt(
         algorithms=[algorithm],
     )
     return decoded
-
-
-# async def get_current_user(
-#     access_token: str = Cookie(None, alias=settings.jwt.access_token_name),
-#     user_service: UserService = Depends(users_service)
-# ):
-#     pass
 
 
 class JWTService:
@@ -94,4 +87,3 @@ class JWTService:
         salt = bcrypt.gensalt()
         pwd_bytes: bytes = password.encode()
         return bcrypt.hashpw(pwd_bytes, salt)
-
