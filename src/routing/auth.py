@@ -40,7 +40,7 @@ async def login(
 ):
     db_user = await user_service.get_user_by_email(user)
     logger.info(db_user)
-    if not db_user or not await jwt_service.validate_password(user.password, db_user.hashed_password):
+    if not db_user or not await jwt_service.validate_password(user.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
