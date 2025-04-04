@@ -1,5 +1,5 @@
 from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, LargeBinary
 
 
 Base = declarative_base()
@@ -21,7 +21,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)
+    password = Column(LargeBinary, nullable=False)
 
     # messages = relationship("Message", back_populates="sender")
     # created_groups = relationship("Group", back_populates="creator")

@@ -76,7 +76,7 @@ class UserRepository(SQLAlchemyRepository):
                 res = await session.execute(stmt)
                 await session.commit()
                 return res.scalar_one()
-            except IntegrityError as e:
+            except IntegrityError:
                 raise UserAlreadyExistsException('Такой пользователь уже существует')
 
     async def find_one(self, data: dict):
@@ -87,7 +87,8 @@ class UserRepository(SQLAlchemyRepository):
                 .limit(limit=1)
             )
             res = await session.execute(stmt)
-            return res.one()
+            await session.commit()
+            return res.scalar_one()
 
 
 # class UserGroupAssociationRepository(SQLAlchemyRepository):

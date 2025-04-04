@@ -1,6 +1,6 @@
 from repositories.repository import AbstractRepository, UserRepository
 from schemas.users import UserCreate, UserLogin
-from config import settings
+from config import settings, logger
 from exeptions import UserAlreadyExistsException, ModelAlreadyExistsException
 
 
@@ -19,11 +19,12 @@ class UserService:
             raise UserAlreadyExistsException
 
     async def get_user_by_email(self, user: UserLogin):
+
         user_dict = user.model_dump()
 
         try:
-            user = await self.repository.find_one({"email": user.email})
-            return user
+            found_user = await self.repository.find_one(user_dict)
+            return found_user
         except ModelAlreadyExistsException:  # нужно заменить на ошибку "пользователь не найден"
             raise UserAlreadyExistsException  # нужно вызывать другую ошибку
 

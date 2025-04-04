@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Cookie
-from config import templates, settings
+from config import templates, settings, logger
 from schemas.users import UserCreate, UserLogin
 from fastapi.responses import RedirectResponse, Response
 
@@ -39,8 +39,8 @@ async def login(
         response: Response
 ):
     db_user = await user_service.get_user_by_email(user)
-    print(db_user)
-    if not db_user or not jwt_service.validate_password(user.password, db_user.hashed_password):
+    logger.info(db_user)
+    if not db_user or not await jwt_service.validate_password(user.password, db_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
@@ -60,7 +60,7 @@ async def register(
         response: Response
 ):
     hashed_password = await jwt_service.hash_password(user.password)
-    user.password = str(hashed_password)
+    user.password = hashed_password
     try:
         new_user = await user_service.add_user(user)
     except UserAlreadyExistsException:
