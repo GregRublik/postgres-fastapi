@@ -15,9 +15,17 @@ auth = APIRouter()
 
 async def get_current_user(
     access_token: str = Cookie(None, alias=settings.jwt.access_token_name),
+    refresh_token: str = Cookie(None, alias=settings.jwt.refresh_token_name),
 ):
-    access_token = await decode_jwt(token=access_token)
-    print(access_token)
+    try:
+        access_token = await decode_jwt(token=access_token)
+        refresh_token = await decode_jwt(token=refresh_token)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"invalid token error {e}")
+
+    #  TODO Доработать проверку токенов (время истечение и прочее)
 
 
 @auth.get("/auth")
