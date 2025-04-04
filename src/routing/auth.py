@@ -85,6 +85,7 @@ async def register(
     response.set_cookie(
         key=settings.jwt.access_token_name,
         value=access_token,
+        # TODO Надо правильно настроить хранение токенов
         # httponly=True,  # Запрещает доступ к кукам через JavaScript (через document.cookie).
         # secure=settings.jwt.secure_cookies,  # Куки будут передаваться только по HTTPS соединению.
         # samesite=settings.jwt.same_site  # Контролирует отправку кук при межсайтовых запросах. (Strict|Lax|None)

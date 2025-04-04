@@ -6,10 +6,6 @@ from db.database import async_session_maker
 
 from db.models import (
     User,
-    # UserGroupAssociation,
-    # Chat,
-    # Group,
-    # Message
 )
 from exeptions import UserAlreadyExistsException, ModelAlreadyExistsException
 
@@ -62,10 +58,6 @@ class SQLAlchemyRepository(AbstractRepository):
             return res.one()
 
 
-# class MainRepository(SQLAlchemyRepository):
-#     model = Main
-
-
 class UserRepository(SQLAlchemyRepository):
     model = User
 
@@ -89,31 +81,3 @@ class UserRepository(SQLAlchemyRepository):
             res = await session.execute(stmt)
             await session.commit()
             return res.scalar_one()
-
-
-# class UserGroupAssociationRepository(SQLAlchemyRepository):
-#     model = UserGroupAssociation
-#
-#
-# class ChatRepository(SQLAlchemyRepository):
-#     model = Chat
-#
-#
-# class GroupRepository(SQLAlchemyRepository):
-#     model = Group
-#
-#
-# class MessageRepository(SQLAlchemyRepository):
-#     model = Message
-#
-#     async def find_all(self, data: dict):
-#         async with async_session_maker() as session:
-#             stmt = (
-#                 select(self.model)
-#                 .where(self.model.chat_id == data['chat_id'])
-#                 .limit(data['limit'])
-#                 .offset(data['offset'])
-#                 .order_by(self.model.timestamp.asc())
-#             )
-#             res = await session.execute(stmt)
-#             return [row[0].to_read_model() for row in res.all()]

@@ -1,6 +1,5 @@
-from repositories.repository import AbstractRepository, UserRepository
+from repositories.repository import AbstractRepository
 from schemas.users import UserCreate, UserLogin
-from config import settings, logger
 from exeptions import UserAlreadyExistsException, ModelAlreadyExistsException
 
 

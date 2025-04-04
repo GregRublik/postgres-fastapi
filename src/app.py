@@ -3,11 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 from config import logger, settings, session_manager
 import sentry_sdk
 
-from routing import chats, groups, messages, user_group_association, users, main, auth
+from routing import main, auth
 
 sentry_sdk.init(
     dsn=settings.sentry_url,
@@ -26,6 +25,7 @@ async def lifespan(_apps: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# TODO надо настроить cors
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],
@@ -34,11 +34,6 @@ app = FastAPI(lifespan=lifespan)
 #     allow_headers=["*"],
 # )
 
-# app.include_router(chats.chats)
-# app.include_router(groups.groups)
-# app.include_router(messages.messages)
-# app.include_router(user_group_association.user_group_association)
-app.include_router(users.users)
 app.include_router(auth.auth)
 app.include_router(main.main, dependencies=[Depends(auth.get_current_user)])
 

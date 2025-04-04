@@ -5,7 +5,7 @@ from sqlalchemy import pool
 from src.config import settings
 from alembic import context
 
-from src.db.models import User  #, UserGroupAssociation, Chat, Group, Message  # noqa
+from src.db.models import User  #, UserGroupAssociation, Chat, Group, Message  # noqa надо импортировать все модели
 from src.db.models import Base
 
 config = context.config

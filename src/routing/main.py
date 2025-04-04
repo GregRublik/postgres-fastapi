@@ -1,14 +1,12 @@
-from fastapi import Cookie, APIRouter, Depends, Request, WebSocket, WebSocketDisconnect
+from fastapi import Cookie, APIRouter, Request, WebSocket
 from typing import Dict, Annotated
-from config import settings, templates
-import asyncio
+from config import templates
 
 main = APIRouter(tags=["main"])
 
 active_connections: Dict[int, WebSocket] = {}
 
 
-# @main.get("/", dependencies=[Depends(settings.security.access_token_required)])
 @main.get("/")
 async def index(
         request: Request,
@@ -19,19 +17,3 @@ async def index(
         'user': {'id': '1'},
         'users_all': [{'id': '2', 'name': 'zalupa'}]
     })
-
-
-# # WebSocket эндпоинт для соединений
-# @main.websocket("/ws/{user_id}", dependencies=[Depends(settings.security.access_token_required)])
-# async def websocket_endpoint(websocket: WebSocket, user_id: int):
-#     # Принимаем WebSocket-соединение
-#     await websocket.accept()
-#     # Сохраняем активное соединение для пользователя
-#     active_connections[user_id] = websocket
-#     try:
-#         while True:
-#             # Просто поддерживаем соединение активным (1 секунда паузы)
-#             await asyncio.sleep(1)
-#     except WebSocketDisconnect:
-#         # Удаляем пользователя из активных соединений при отключении
-#         active_connections.pop(user_id, None)

@@ -19,16 +19,6 @@ class TokenNoFoundException(HTTPException):
         super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен не найден")
 
 
-# ModelAlreadyExistsException = HTTPException(
-#     status_code=status.HTTP_409_CONFLICT,
-#     detail='Model already exists'
-# )
-
-# UserAlreadyExistsException = HTTPException(
-#     status_code=status.HTTP_409_CONFLICT,
-#     detail='User already exists'
-# )
-
 PasswordMismatchException = HTTPException(
     status_code=status.HTTP_409_CONFLICT,
     detail='Пароли не совпадают!'

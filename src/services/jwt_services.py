@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 
 from config import settings
-from fastapi import Cookie
 import jwt
 import bcrypt
 

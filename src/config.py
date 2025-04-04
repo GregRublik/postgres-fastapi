@@ -1,5 +1,4 @@
 import aiohttp
-from authx import AuthXConfig, AuthX
 from loguru import logger
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
