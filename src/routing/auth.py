@@ -8,7 +8,10 @@ from typing import Annotated
 from depends import users_service, get_jwt_service
 from services.users import UserService
 from services.jwt_services import JWTService, decode_jwt
-from exeptions import UserAlreadyExistsException
+from exeptions import (
+    UserAlreadyExistsException,
+    UserNoFoundException
+)
 
 auth = APIRouter()
 
@@ -46,9 +49,14 @@ async def login(
         jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
         response: Response
 ):
-    db_user = await user_service.get_user_by_email(user)
-    logger.info(db_user)
-    if not db_user or not await jwt_service.validate_password(user.password, db_user.password):
+    try:
+        db_user = await user_service.get_user_by_email(user)
+    except UserNoFoundException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User no found with this email"
+        )
+    if not await jwt_service.validate_password(user.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
@@ -57,7 +65,7 @@ async def login(
     refresh_token = await jwt_service.create_refresh_token(user)
     response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
     response.set_cookie(settings.jwt.access_token_name, access_token)
-    return Response(status_code=200)
+    return {'user': db_user}
 
 
 @auth.post("/register")
@@ -94,8 +102,8 @@ async def register(
     return {'new_user': new_user}
 
 
-@auth.post("/logout")
+@auth.get("/logout")
 async def logout(response: Response):
     response.delete_cookie(settings.jwt.access_token_name)
     response.delete_cookie(settings.jwt.refresh_token_name)
-    return RedirectResponse(url="/auth")
+    return {'status_code': 200}

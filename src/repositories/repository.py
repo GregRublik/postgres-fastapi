@@ -1,13 +1,18 @@
 from abc import ABC, abstractmethod
 
 from sqlalchemy import insert, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from db.database import async_session_maker
 
 from db.models import (
     User,
 )
-from exeptions import UserAlreadyExistsException, ModelAlreadyExistsException
+from exeptions import (
+    UserAlreadyExistsException,
+    ModelAlreadyExistsException,
+    ModelNoFoundException,
+    UserNoFoundException
+)
 
 
 class AbstractRepository(ABC):
@@ -48,14 +53,20 @@ class SQLAlchemyRepository(AbstractRepository):
     async def find_all(self):
         async with async_session_maker() as session:
             stmt = select(self.model)
-            res = await session.execute(stmt)
-            return [row[0].to_read_model() for row in res.all()]
+            try:
+                res = await session.execute(stmt)
+                return [row[0].to_read_model() for row in res.all()]
+            except NoResultFound:
+                raise ModelNoFoundException
 
     async def find_one(self, data: dict):
         async with async_session_maker() as session:
             stmt = select(self.model).where(**data)
-            res = await session.execute(stmt)
-            return res.one()
+            try:
+                res = await session.execute(stmt)
+                return res.scalar_one()
+            except NoResultFound:
+                raise ModelNoFoundException
 
 
 class UserRepository(SQLAlchemyRepository):
@@ -78,6 +89,9 @@ class UserRepository(SQLAlchemyRepository):
                 .where(self.model.email == data['email'])
                 .limit(limit=1)
             )
-            res = await session.execute(stmt)
-            await session.commit()
-            return res.scalar_one()
+            try:
+                res = await session.execute(stmt)
+                await session.commit()
+                return res.scalar_one()
+            except NoResultFound:
+                raise UserNoFoundException('Такой пользователь не найден')

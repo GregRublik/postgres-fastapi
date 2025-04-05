@@ -5,7 +5,15 @@ class ModelAlreadyExistsException(BaseException):
     pass
 
 
+class ModelNoFoundException(BaseException):
+    pass
+
+
 class UserAlreadyExistsException(ModelAlreadyExistsException):
+    pass
+
+
+class UserNoFoundException(ModelNoFoundException):
     pass
 
 

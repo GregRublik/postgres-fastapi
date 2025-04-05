@@ -1,6 +1,6 @@
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, LargeBinary
-
+from sqlalchemy import Column, Integer, String, Boolean, LargeBinary, DateTime
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -13,3 +13,6 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(LargeBinary, nullable=False)
     is_active = Column(Boolean, default=True)
+
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
