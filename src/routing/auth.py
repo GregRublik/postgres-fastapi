@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Cookie
 from config import templates, settings, logger
-from schemas.users import UserCreate, UserLogin
+from schemas.users import UserCreate, UserLogin, User
 from fastapi.responses import RedirectResponse, Response
 
 from typing import Annotated
@@ -8,27 +8,49 @@ from typing import Annotated
 from depends import users_service, get_jwt_service
 from services.users import UserService
 from services.jwt_services import JWTService, decode_jwt
+from jwt.exceptions import ExpiredSignatureError
 from exeptions import (
     UserAlreadyExistsException,
     UserNoFoundException
 )
 
+
 auth = APIRouter()
 
 
 async def get_current_user(
+    response: Response,
+    user_service: Annotated[UserService, Depends(users_service)],
+    jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
     access_token: str = Cookie(None, alias=settings.jwt.access_token_name),
     refresh_token: str = Cookie(None, alias=settings.jwt.refresh_token_name),
 ):
-    try:
-        access_token = await decode_jwt(token=access_token)
-        refresh_token = await decode_jwt(token=refresh_token)
-    except Exception as e:
+    if not access_token or not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"invalid token error: {e}")
+            detail="tokens is not exist"
+        )
+    # todo надо продумать получше логику проверки пользователя и токенов.
+    try:
+        await decode_jwt(token=access_token)
+    except ExpiredSignatureError:
+        try:
+            decoded_refresh_token = await decode_jwt(token=refresh_token)
 
-    #  TODO Доработать проверку токенов (время истечение и прочее)
+            db_user = await user_service.get_user(User(id=decoded_refresh_token.get("sub"), **decoded_refresh_token))
+            response.set_cookie(
+                key=settings.jwt.access_token_name,
+                value=await jwt_service.create_access_token(db_user),
+            )
+            response.set_cookie(
+                key=settings.jwt.refresh_token_name,
+                value=await jwt_service.create_refresh_token(db_user),
+            )
+        except ExpiredSignatureError as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Session expired. Re-login required"
+            )
 
 
 @auth.get("/auth")

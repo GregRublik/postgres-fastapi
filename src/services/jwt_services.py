@@ -60,7 +60,7 @@ class JWTService:
             "email": user.email,
             "type": "access"
         }
-        return await encode_jwt(payload, 30)
+        return await encode_jwt(payload, 1)
 
     @staticmethod
     async def create_refresh_token(user: User):

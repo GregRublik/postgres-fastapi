@@ -72,17 +72,21 @@ class SQLAlchemyRepository(AbstractRepository):
 class UserRepository(SQLAlchemyRepository):
     model = User
 
-    async def add_one(self, data: dict):
+    async def find_one(self, data: dict):
         async with async_session_maker() as session:
-            stmt = insert(self.model).values(**data).returning(self.model)
+            stmt = (
+                select(self.model)
+                .where(self.model.id == data['id'])
+                .limit(limit=1)
+            )
             try:
                 res = await session.execute(stmt)
                 await session.commit()
                 return res.scalar_one()
-            except IntegrityError:
-                raise UserAlreadyExistsException('Такой пользователь уже существует')
+            except NoResultFound:
+                raise UserNoFoundException('User is not exist')
 
-    async def find_one(self, data: dict):
+    async def find_one_by_email(self, data: dict):
         async with async_session_maker() as session:
             stmt = (
                 select(self.model)
@@ -94,4 +98,4 @@ class UserRepository(SQLAlchemyRepository):
                 await session.commit()
                 return res.scalar_one()
             except NoResultFound:
-                raise UserNoFoundException('Такой пользователь не найден')
+                raise UserNoFoundException('User is not exist')
