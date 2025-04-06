@@ -39,7 +39,7 @@ async def encode_jwt(
 
 
 async def decode_jwt(
-        token: str | bytes,
+        token: str,
         public_key: str = settings.jwt.public_key_path.read_text(),
         algorithm: str = settings.jwt.algorithm,
 ) -> dict:
@@ -56,7 +56,7 @@ class JWTService:
     @staticmethod
     async def create_access_token(user: User):
         payload = {
-            "sub": user.id,
+            "sub": str(user.id),
             "email": user.email,
             "type": "access"
         }
@@ -65,7 +65,7 @@ class JWTService:
     @staticmethod
     async def create_refresh_token(user: User):
         payload = {
-            "sub": user.id,
+            "sub": str(user.id),
             "email": user.email,
             "type": "refresh"
         }
