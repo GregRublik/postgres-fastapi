@@ -61,8 +61,8 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
-    access_token = await jwt_service.create_access_token(user)
-    refresh_token = await jwt_service.create_refresh_token(user)
+    access_token = await jwt_service.create_access_token(db_user)
+    refresh_token = await jwt_service.create_refresh_token(db_user)
     response.set_cookie(settings.jwt.refresh_token_name, refresh_token)
     response.set_cookie(settings.jwt.access_token_name, access_token)
     return {'user': db_user}
@@ -84,8 +84,8 @@ async def register(
             status_code=status.HTTP_409_CONFLICT,
             detail='User already exists with this email'
         )
-    access_token = await jwt_service.create_access_token(user)
-    refresh_token = await jwt_service.create_refresh_token(user)
+    access_token = await jwt_service.create_access_token(new_user)
+    refresh_token = await jwt_service.create_refresh_token(new_user)
     response.set_cookie(
         key=settings.jwt.refresh_token_name,
         value=refresh_token

@@ -6,3 +6,5 @@ src/logs/app.log
 src/logs/debug.log
 private_key.ppk
 public_key
+app.log
+debug.log

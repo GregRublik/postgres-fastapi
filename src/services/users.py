@@ -24,7 +24,7 @@ class UserService:
         except ModelAlreadyExistsException:
             raise UserAlreadyExistsException
 
-    async def get_user_by_email(self, user: UserLogin):
+    async def get_user_by_email(self, user: UserLogin) -> User:
 
         user_dict = user.model_dump()
         try:

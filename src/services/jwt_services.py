@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 
-from config import settings
+from config import settings, logger
 import jwt
 import bcrypt
 
-from schemas.users import UserCreate, UserLogin
+from schemas.users import User
 
 
 async def encode_jwt(
@@ -54,17 +54,19 @@ async def decode_jwt(
 class JWTService:
 
     @staticmethod
-    async def create_access_token(user: UserCreate | UserLogin):
+    async def create_access_token(user: User):
         payload = {
-            "sub": user.email,
+            "sub": user.id,
+            "email": user.email,
             "type": "access"
         }
         return await encode_jwt(payload, 30)
 
     @staticmethod
-    async def create_refresh_token(user: UserCreate | UserLogin):
+    async def create_refresh_token(user: User):
         payload = {
-            "sub": user.email,
+            "sub": user.id,
+            "email": user.email,
             "type": "refresh"
         }
         return await encode_jwt(payload, 43200)
