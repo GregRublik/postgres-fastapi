@@ -15,7 +15,7 @@ from exeptions import (
 )
 
 
-auth = APIRouter()
+auth = APIRouter(tags=["auth"])
 
 
 async def get_current_user(
@@ -46,7 +46,7 @@ async def get_current_user(
                 key=settings.jwt.refresh_token_name,
                 value=await jwt_service.create_refresh_token(db_user),
             )
-        except ExpiredSignatureError as e:
+        except ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Session expired. Re-login required"
