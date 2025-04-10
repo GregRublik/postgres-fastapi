@@ -95,8 +95,7 @@ async def register(
         jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
         response: Response
 ):
-    hashed_password = await jwt_service.hash_password(user.password)
-    user.password = hashed_password
+    user.password = await jwt_service.hash_password(user.password)
     try:
         new_user = await user_service.add_user(user)
     except UserAlreadyExistsException:

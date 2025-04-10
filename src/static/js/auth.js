@@ -28,7 +28,7 @@ const sendRequest = async (url, data) => {
 
         if (response.ok) {
             alert(result.message || 'Операция выполнена успешно!');
-            return result;
+            location.reload();
         } else {
             alert(result.message || 'Ошибка выполнения запроса!');
             return null;
