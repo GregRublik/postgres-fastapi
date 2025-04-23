@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 
+from fastapi.params import Depends
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
-from db.database import async_session_maker
+from sqlalchemy.ext.asyncio import AsyncSession
+from config import logger
+
+from db.database import async_session_maker, SessionDep
 
 from db.models import (
     User,
@@ -22,15 +26,15 @@ class AbstractRepository(ABC):
     model = None
 
     @abstractmethod
-    async def add_one(self, data: dict):
+    async def add_one(self, data: dict, session: Depends(SessionDep)):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_one(self, data: dict):
+    async def find_one(self, data: dict, session: Depends(SessionDep)):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_all(self):
+    async def find_all(self, session: Depends(SessionDep)):
         raise NotImplementedError
 
 
@@ -40,8 +44,8 @@ class SQLAlchemyRepository(AbstractRepository):
     """
     model = None
 
-    async def add_one(self, data: dict):
-        async with async_session_maker() as session:
+    async def add_one(self, data: dict, session: Depends(SessionDep)):
+        async with session() as session:
             stmt = insert(self.model).values(**data).returning(self.model)
             try:
                 res = await session.execute(stmt)
@@ -50,8 +54,8 @@ class SQLAlchemyRepository(AbstractRepository):
             except IntegrityError:
                 raise ModelAlreadyExistsException
 
-    async def find_all(self):
-        async with async_session_maker() as session:
+    async def find_all(self, session: Depends(SessionDep)):
+        async with session() as session:
             stmt = select(self.model)
             try:
                 res = await session.execute(stmt)
@@ -59,8 +63,8 @@ class SQLAlchemyRepository(AbstractRepository):
             except NoResultFound:
                 raise ModelNoFoundException
 
-    async def find_one(self, data: dict):
-        async with async_session_maker() as session:
+    async def find_one(self, data: dict, session: Depends(SessionDep)):
+        async with session() as session:
             stmt = select(self.model).where(**data)
             try:
                 res = await session.execute(stmt)
@@ -72,8 +76,8 @@ class SQLAlchemyRepository(AbstractRepository):
 class UserRepository(SQLAlchemyRepository):
     model = User
 
-    async def find_one(self, data: dict):
-        async with async_session_maker() as session:
+    async def find_one(self, data: dict, session: Depends(SessionDep)):
+        async with session() as session:
             stmt = (
                 select(self.model)
                 .where(self.model.id == data['id'])
@@ -86,7 +90,7 @@ class UserRepository(SQLAlchemyRepository):
             except NoResultFound:
                 raise UserNoFoundException('User is not exist')
 
-    async def find_one_by_email(self, data: dict):
+    async def find_one_by_email(self, data: dict, session: Depends(SessionDep)):
         async with async_session_maker() as session:
             stmt = (
                 select(self.model)
