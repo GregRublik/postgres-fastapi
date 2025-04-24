@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from repositories.repository import AbstractRepository
+from typing import Union
+from repositories.repository import AbstractRepository, UserRepository
 from schemas.users import UserCreate, UserLogin, User
 from exeptions import (
     UserAlreadyExistsException,
@@ -12,7 +13,7 @@ from exeptions import (
 
 class UserService:
 
-    def __init__(self, repository: AbstractRepository, session: AsyncSession):
+    def __init__(self, repository: Union[AbstractRepository, UserRepository], session: AsyncSession):
         self.repository = repository
         self.session = session
 
