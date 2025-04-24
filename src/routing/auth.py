@@ -28,7 +28,7 @@ async def get_current_user(
     if not access_token or not refresh_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="tokens is not exist"
+            detail={"success": False, "error": "tokens is not exist"}
         )
     # todo надо продумать получше логику проверки пользователя и токенов.
     try:
@@ -49,7 +49,7 @@ async def get_current_user(
         except ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Session expired. Re-login required"
+                detail={"success": False, "error": "Session expired. Re-login required"}
             )
 
 
@@ -76,16 +76,17 @@ async def login(
     except UserNoFoundException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User no found with this email"
+            # success=False,
+            detail={"success": False, "error": "User no found with this email"}
         )
     if not await jwt_service.validate_password(user.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            detail={"success": False, "error": "Invalid credentials"}
         )
     response.set_cookie(settings.jwt.refresh_token_name, await jwt_service.create_refresh_token(db_user))
     response.set_cookie(settings.jwt.access_token_name, await jwt_service.create_access_token(db_user))
-    return {'user': db_user}
+    return {"success": True, 'user': db_user}
 
 
 @auth.post("/register")
@@ -101,7 +102,7 @@ async def register(
     except UserAlreadyExistsException:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail='User already exists with this email'
+            detail={"success": False, "error": "User already exists with this email"}
         )
     response.set_cookie(
         key=settings.jwt.refresh_token_name,
@@ -116,11 +117,11 @@ async def register(
         # samesite=settings.jwt.same_site  # Контролирует отправку кук при "меж сайтовых" запросах. (Strict|Lax|None)
     )
 
-    return {'new_user': new_user}
+    return {"success": True, 'new_user': new_user}
 
 
 @auth.get("/logout")
 async def logout(response: Response):
     response.delete_cookie(settings.jwt.access_token_name)
     response.delete_cookie(settings.jwt.refresh_token_name)
-    return {'status_code': 200}
+    return { "success": True, "message": "Logged out successfully" }
