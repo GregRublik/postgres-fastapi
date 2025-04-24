@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, status, Cookie
-from config import templates, settings, logger
+from config import templates, settings
 from schemas.users import UserCreate, UserLogin, User
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import Response
 
 from typing import Annotated
 
-from depends import users_service, get_jwt_service
+from depends import get_user_service, get_jwt_service
 from services.users import UserService
 from services.jwt_services import JWTService, decode_jwt
 from jwt.exceptions import ExpiredSignatureError
@@ -20,7 +20,7 @@ auth = APIRouter(tags=["auth"])
 
 async def get_current_user(
     response: Response,
-    user_service: Annotated[UserService, Depends(users_service)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
     jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
     access_token: str = Cookie(None, alias=settings.jwt.access_token_name),
     refresh_token: str = Cookie(None, alias=settings.jwt.refresh_token_name),
@@ -67,7 +67,7 @@ async def authorization(
 @auth.post("/login")
 async def login(
         user: UserLogin,
-        user_service: Annotated[UserService, Depends(users_service)],
+        user_service: Annotated[UserService, Depends(get_user_service)],
         jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
         response: Response
 ):
@@ -91,7 +91,7 @@ async def login(
 @auth.post("/register")
 async def register(
         user: UserCreate,
-        user_service: Annotated[UserService, Depends(users_service)],
+        user_service: Annotated[UserService, Depends(get_user_service)],
         jwt_service: Annotated[JWTService, Depends(get_jwt_service)],
         response: Response
 ):

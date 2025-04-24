@@ -1,4 +1,6 @@
-from repositories.repository import AbstractRepository, UserRepository
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from repositories.repository import AbstractRepository
 from schemas.users import UserCreate, UserLogin, User
 from exeptions import (
     UserAlreadyExistsException,
@@ -6,19 +8,19 @@ from exeptions import (
     ModelNoFoundException,
     UserNoFoundException
 )
-from config import logger
 
 
 class UserService:
 
-    def __init__(self, repository: AbstractRepository):
-        self.repository: UserRepository = repository()
+    def __init__(self, repository: AbstractRepository, session: AsyncSession):
+        self.repository = repository
+        self.session = session
 
     async def add_user(self, user: UserCreate) -> User:
         user_dict = user.model_dump()
 
         try:
-            new_user = await self.repository.add_one(user_dict)
+            new_user = await self.repository.add_one(self.session, user_dict)
             return new_user
         except ModelAlreadyExistsException:
             raise UserAlreadyExistsException
@@ -27,7 +29,7 @@ class UserService:
         user_dict = user.model_dump()
 
         try:
-            found_user = await self.repository.find_one_by_email(user_dict)
+            found_user = await self.repository.find_one_by_email(self.session, user_dict)
             return found_user
         except ModelNoFoundException:
             raise UserNoFoundException
@@ -36,7 +38,7 @@ class UserService:
         user_dict = user.model_dump()
 
         try:
-            found_user = await self.repository.find_one(user_dict)
+            found_user = await self.repository.find_one(self.session, user_dict)
             return found_user
         except ModelNoFoundException:
             raise UserNoFoundException

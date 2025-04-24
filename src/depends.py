@@ -1,12 +1,21 @@
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.database import get_db_session
 from repositories.repository import (
     UserRepository,
     )
-from services import main, users, jwt_services
-
-
-def users_service():
-    return users.UserService(UserRepository)
+from services import users, jwt_services
 
 
 def get_jwt_service():
     return jwt_services.JWTService()
+
+def get_user_repository() -> UserRepository:
+    return UserRepository()
+
+def get_user_service(
+    session: AsyncSession = Depends(get_db_session),
+    repository: UserRepository = Depends(get_user_repository)
+) -> users.UserService:
+    return users.UserService(repository, session)
