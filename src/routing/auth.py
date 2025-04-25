@@ -124,4 +124,4 @@ async def register(
 async def logout(response: Response):
     response.delete_cookie(settings.jwt.access_token_name)
     response.delete_cookie(settings.jwt.refresh_token_name)
-    return { "success": True, "message": "Logged out successfully" }
+    return {"success": True, "message": "Logged out successfully" }

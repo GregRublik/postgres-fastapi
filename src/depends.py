@@ -11,8 +11,10 @@ from services import users, jwt_services
 def get_jwt_service():
     return jwt_services.JWTService()
 
+
 def get_user_repository() -> UserRepository:
     return UserRepository()
+
 
 def get_user_service(
     session: AsyncSession = Depends(get_db_session),

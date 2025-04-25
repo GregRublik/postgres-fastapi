@@ -18,6 +18,7 @@ async_session_maker = async_sessionmaker(
     class_=AsyncSession
 )
 
+
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         try:
