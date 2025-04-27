@@ -8,3 +8,4 @@ private_key.ppk
 public_key
 app.log
 debug.log
+.test.env

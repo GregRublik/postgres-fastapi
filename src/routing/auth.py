@@ -86,7 +86,8 @@ async def login(
         )
     response.set_cookie(settings.jwt.refresh_token_name, await jwt_service.create_refresh_token(db_user))
     response.set_cookie(settings.jwt.access_token_name, await jwt_service.create_access_token(db_user))
-    return {"success": True, 'user': db_user}
+    del db_user.password
+    return {"detail": {"success": True, 'user': db_user}}
 
 
 @auth.post("/register")
@@ -116,12 +117,12 @@ async def register(
         # secure=settings.jwt.secure_cookies,  # Куки будут передаваться только по HTTPS соединению.
         # samesite=settings.jwt.same_site  # Контролирует отправку кук при "меж сайтовых" запросах. (Strict|Lax|None)
     )
-
-    return {"success": True, 'new_user': new_user}
+    del new_user.password
+    return {"detail": {"success": True, 'new_user': new_user}}
 
 
 @auth.get("/logout")
 async def logout(response: Response):
     response.delete_cookie(settings.jwt.access_token_name)
     response.delete_cookie(settings.jwt.refresh_token_name)
-    return {"success": True, "message": "Logged out successfully" }
+    return {"detail": {"success": True, "message": "Logged out successfully"}}

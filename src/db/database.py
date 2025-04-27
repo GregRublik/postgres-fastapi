@@ -6,17 +6,20 @@ from typing import AsyncGenerator
 
 Base = declarative_base()
 
-engine = create_async_engine(
-    url=settings.db.dsn_asyncpg,
-    pool_size=5,
-    max_overflow=10
-)
 
-async_session_maker = async_sessionmaker(
-    bind=engine,
-    expire_on_commit=False,
-    class_=AsyncSession
-)
+def create_session_maker(db_url: str) -> async_sessionmaker[AsyncSession]:
+    return async_sessionmaker(
+        bind=create_async_engine(
+            url=db_url,
+            pool_size=5,
+            max_overflow=10
+        ),
+        expire_on_commit=False,
+        class_=AsyncSession
+    )
+
+
+async_session_maker = create_session_maker(settings.db.dsn_asyncpg)
 
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:

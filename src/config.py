@@ -17,17 +17,17 @@ logger.add(
 
 
 class DbTestSettings(BaseSettings):
-    db_host: str = Field(json_schema_extra={'env': 'DB_TEST_HOST'})
-    db_user: str = Field(json_schema_extra={'env': 'DB_TEST_USER'})
-    db_pass: str = Field(json_schema_extra={'env': 'DB_TEST_PASS'})
-    db_name: str = Field(json_schema_extra={'env': 'DB_TEST_NAME'})
-    db_port: int = Field(json_schema_extra={'env': 'DB_TEST_PORT'})
+    db_host: str = Field(json_schema_extra={'env': 'DB_HOST'})
+    db_user: str = Field(json_schema_extra={'env': 'DB_USER'})
+    db_pass: str = Field(json_schema_extra={'env': 'DB_PASS'})
+    db_name: str = Field(json_schema_extra={'env': 'DB_NAME'})
+    db_port: int = Field(json_schema_extra={'env': 'DB_PORT'})
 
     @property
     def dsn_asyncpg(self):
         return f"postgresql+asyncpg://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
-    model_config = SettingsConfigDict(env_prefix="DB_TEST_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="DB_", env_file=".test.env", extra="ignore")
 
 
 class DbSettings(BaseSettings):
