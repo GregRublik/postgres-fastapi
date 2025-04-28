@@ -45,7 +45,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=rm_password
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
     volumes:
-      - ./rabbitmq:/var/lib/rabbitmq
+      - rabbitmq-data:/var/lib/rabbitmq
     ports:
       - "15672:15672"
       - "5672:5672"
@@ -56,3 +56,4 @@ networks:
 
 volumes:
   postgres-data:
+  rabbitmq-data:
