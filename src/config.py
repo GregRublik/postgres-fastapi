@@ -16,6 +16,20 @@ logger.add(
 )
 
 
+class RedisSettings(BaseSettings):
+    redis_host: str = Field(json_schema_extra={'env': 'REDIS_HOST'})
+    redis_port: str = Field(json_schema_extra={'env': 'REDIS_PORT'})
+    redis_user: str = Field(json_schema_extra={'env': 'REDIS_USER'})
+    redis_password: str = Field(json_schema_extra={'env': 'REDIS_PASSWORD'})
+    redis_user_password: str = Field(json_schema_extra={'env': 'REDIS_USER_PASSWORD'})
+
+    @property
+    def redis_url(self):
+        return f"redis://:{self.redis_pass}@{self.redis_host}:{self.redis_port}/0"
+
+    model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=".env", extra="ignore")
+
+
 class DbTestSettings(BaseSettings):
     db_host: str = Field(json_schema_extra={'env': 'DB_HOST'})
     db_user: str = Field(json_schema_extra={'env': 'DB_USER'})
@@ -69,6 +83,7 @@ class Settings(BaseSettings):
     db: DbSettings
     db_test: DbTestSettings
     jwt: JWTConfig
+    redis: RedisSettings
 
     model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env", extra="ignore")
 
@@ -105,5 +120,6 @@ session_manager = SessionManager.get_instance()
 settings = Settings(
     db=DbSettings(),
     db_test=DbTestSettings(),
-    jwt=JWTConfig()
+    jwt=JWTConfig(),
+    redis=RedisSettings(),
 )

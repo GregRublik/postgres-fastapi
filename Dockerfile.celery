@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml poetry.lock* ./
+
+# Устанавливаем Poetry и зависимости
+RUN pip install --upgrade pip && \
+    pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --only main --no-interaction --no-ansi
+
+# Копируем исходный код
+COPY . .
+
+# Запускаем Celery
+CMD ["celery", "-A", "app.tasks", "worker", "--loglevel=info"]

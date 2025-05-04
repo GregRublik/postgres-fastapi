@@ -8,6 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD alembic revision --autogenerate -m 'initial' && alembic upgrade head
+#CMD alembic revision --autogenerate -m 'initial' && alembic upgrade head
 
 CMD python src/app.py

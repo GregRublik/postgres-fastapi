@@ -2,12 +2,20 @@ services:
 
   app:
     build:
-      .
+      context: .
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery:
+        condition: service_healthy
     ports:
       - ${APP_PORT}:${APP_PORT}
+    env_file:
+      - .env
     networks:
       - mynetwork
 
@@ -30,9 +38,6 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
-    restart: unless-stopped
-    tty: true
-    stdin_open: true
     networks:
       - mynetwork
 
@@ -41,14 +46,77 @@ services:
     hostname: rabbitmq
     restart: always
     environment:
-      - RABBITMQ_DEFAULT_USER=rm_user
-      - RABBITMQ_DEFAULT_PASS=rm_password
-      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log_levels [{connection,error},{default,error}] disk_free_limit 2147483648
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - "15672:15672"  # RabbitMQ Management UI
+      - "5672:5672"    # AMQP port
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - mynetwork
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    depends_on:
+      - rabbitmq
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - mynetwork
+    # Для production можно добавить:
+    # restart: unless-stopped
+    # deploy:
+    #   replicas: 2  # Масштабирование воркеров
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    env_file:
+      - .redis.env
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_USER_PASSWORD=${REDIS_USER_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis-data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+#    command: >
+#      sh -c '
+#        mkdir -p /usr/local/etc/redis &&
+#        echo "bind 0.0.0.0" > /usr/local/etc/redis/redis.conf &&
+#        echo "requirepass $REDIS_PASSWORD" >> /usr/local/etc/redis/redis.conf &&
+#        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+#        echo "appendfsync everysec" >> /usr/local/etc/redis/redis.conf &&
+#        echo "user default on nopass ~* +@all" > /usr/local/etc/redis/users.acl &&
+#        echo "user $REDIS_USER on >$REDIS_USER_PASSWORD ~* +@all" >> /usr/local/etc/redis/users.acl &&
+#        redis-server /usr/local/etc/redis/redis.conf --aclfile /usr/local/etc/redis/users.acl
+#      '
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
 
 networks:
   mynetwork:
@@ -57,3 +125,4 @@ networks:
 volumes:
   postgres-data:
   rabbitmq-data:
+  redis-data:

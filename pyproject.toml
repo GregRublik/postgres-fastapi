@@ -1,0 +1,37 @@
+[project]
+name = "fastapi-postgres"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Grigory Ivanov",email = "grigorashekivanov2@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "fastapi (==0.115.12)",
+    "aiohttp (==3.11.18)",
+    "bcrypt (==4.3.0)",
+    "alembic (==1.15.2)",
+    "httpx (==0.28.1)",
+    "jinja2 (==3.1.6)",
+    "pathlib (==1.0.1)",
+    "pydantic-settings (==2.9.1)",
+    "sentry-sdk (==2.26.1)",
+    "sqlalchemy (==2.0.40)",
+    "uvicorn (==0.34.2)",
+    "loguru (==0.7.3)",
+    "pydantic[email] (==2.11.4)",
+    "asyncpg (==0.30.0)",
+    "pyjwt (==2.10.1)",
+    "cryptography (==44.0.2)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
