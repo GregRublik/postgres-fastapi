@@ -14,16 +14,16 @@ postgresql и представляет собой базу для быстрог
   - DB_PASS # Для запуска базы данных 
   - DB_NAME # Для запуска базы данных 
   - DB_PORT # Для запуска базы данных 
-  - JWT_REFRESH_TOKEN_NAME # имя токена refresh
-  - JWT_ACCESS_TOKEN_NAME # имя токена access
-  - JWT_ALGORITHM # тут используется "RS256"
   - REDIS_PASSWORD
   - REDIS_USER
   - REDIS_USER_PASSWORD
   - REDIS_HOST
   - REDIS_PORT
+  - JWT_REFRESH_TOKEN_NAME # имя токена refresh
+  - JWT_ACCESS_TOKEN_NAME # имя токена access
+  - JWT_ALGORITHM # тут используется "RS256"
   - RABBITMQ_USER
-  - RABBITMQ_PASS
+  - RABBITMQ_PASSWORD
 
 
 * Необходимо создать два ключа в корневой директории для работы авторизации в приложении, но для теста я создал два изначально: 
