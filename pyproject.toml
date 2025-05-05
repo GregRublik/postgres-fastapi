@@ -28,9 +28,14 @@ dependencies = [
 ]
 
 [tool.poetry]
+package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.5"
+
+[tool.poetry.group.celery.dependencies]
+celery = "^5.5.2"
+
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
