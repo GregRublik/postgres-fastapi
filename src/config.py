@@ -25,9 +25,20 @@ class RedisSettings(BaseSettings):
 
     @property
     def redis_url(self):
-        return f"redis://:{self.redis_pass}@{self.redis_host}:{self.redis_port}/0"
+        return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/0"
 
     model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=".env", extra="ignore")
+
+
+class RabbitMQSettings(BaseSettings):
+    rabbitmq_user: str = Field(json_schema_extra={'env': 'RABBITMQ_USER'})
+    rabbitmq_password: str = Field(json_schema_extra={'env': 'RABBITMQ_PASSWORD'})
+
+    @property
+    def rabbitmq_url(self):
+        return f""
+
+    model_config = SettingsConfigDict(env_prefix="RABBITMQ_", env_file=".env", extra="ignore")
 
 
 class DbTestSettings(BaseSettings):
@@ -84,6 +95,7 @@ class Settings(BaseSettings):
     db_test: DbTestSettings
     jwt: JWTConfig
     redis: RedisSettings
+    rabbitmq: RabbitMQSettings
 
     model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env", extra="ignore")
 
@@ -122,4 +134,5 @@ settings = Settings(
     db_test=DbTestSettings(),
     jwt=JWTConfig(),
     redis=RedisSettings(),
+    rabbitmq=RabbitMQSettings(),
 )

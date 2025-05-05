@@ -2,9 +2,13 @@ FROM python:3.12.4
 
 WORKDIR app/
 
-COPY requirements.txt .
+COPY pyproject.toml poetry.lock* ./
 
-RUN pip install -r requirements.txt
+# Устанавливаем Poetry и зависимости
+RUN pip install --upgrade pip && \
+    pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --only main,dev --no-interaction --no-ansi
 
 COPY . .
 

@@ -1,6 +1,6 @@
-FROM python:3.11-slim
+FROM python:3.12.4-slim
 
-WORKDIR /app
+WORKDIR app/
 
 COPY pyproject.toml poetry.lock* ./
 
@@ -11,7 +11,6 @@ RUN pip install --upgrade pip && \
     poetry install --only main,celery --no-interaction --no-ansi
 
 # Копируем исходный код
-COPY . .
+COPY src/task.py src/config.py .env .test.env ./
 
-# Запускаем Celery
-CMD ["celery", "-A", "app.tasks", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "task", "worker", "--loglevel=info"]
