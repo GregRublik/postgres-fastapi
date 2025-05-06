@@ -3,6 +3,7 @@ from typing import Optional, List, Dict, Any
 import json
 
 import aio_pika
+from config import settings
 
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -42,7 +43,7 @@ class RabbitMQRepository(AbstractRepository):
     Репозиторий для работы с RabbitMQ
     """
 
-    def __init__(self, connection_string: str = "amqp://guest:guest@localhost/"):
+    def __init__(self, connection_string: str = settings.rabbitmq.amqp_url):
         self.connection_string = connection_string
         self.connection: Optional[aio_pika.RobustConnection] = None
         self.channel: Optional[aio_pika.RobustChannel] = None

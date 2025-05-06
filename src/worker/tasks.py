@@ -1,5 +1,6 @@
 from selery_app import app
 
+
 @app.task
 def process_message(message):
     """Пример задачи для обработки сообщения из RabbitMQ"""

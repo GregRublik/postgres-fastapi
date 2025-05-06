@@ -35,8 +35,8 @@ class RabbitMQSettings(BaseSettings):
     rabbitmq_password: str = Field(json_schema_extra={'env': 'RABBITMQ_PASSWORD'})
 
     @property
-    def rabbitmq_url(self):
-        return f""
+    def amqp_url(self):
+        return f"amqp://{self.rabbitmq_user}:{self.rabbitmq_password}@rabbitmq:5672//"
 
     model_config = SettingsConfigDict(env_prefix="RABBITMQ_", env_file=".env", extra="ignore")
 

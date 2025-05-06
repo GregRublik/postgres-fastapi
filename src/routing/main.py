@@ -17,3 +17,10 @@ async def index(
         'user': {'id': '1'},
         'users_all': [{'id': '2', 'name': 'zalupa'}]
     })
+
+
+@main.get("rabbit_test/")
+async def index(
+
+):
+    pass
