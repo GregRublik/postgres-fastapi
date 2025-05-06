@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db_session
 from repositories.repository import (
     UserRepository,
+    RabbitMQRepository
     )
 from services import users, jwt_services
 
@@ -14,6 +15,10 @@ def get_jwt_service():
 
 def get_user_repository() -> UserRepository:
     return UserRepository()
+
+
+def get_rabbitmq_repository() -> RabbitMQRepository:
+    return RabbitMQRepository()
 
 
 def get_user_service(
