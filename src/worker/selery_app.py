@@ -1,5 +1,4 @@
 from celery import Celery
-import redis
 from config import settings
 
 app = Celery(
@@ -15,13 +14,3 @@ app.conf.update(
     timezone='Europe/Moscow',
     enable_utc=True,
 )
-
-
-@app.task
-def test_redis():
-    r = redis.Redis(
-        host=settings.redis.redis_host,
-        port=settings.redis.redis_port,
-        password=settings.redis.redis_password
-    )
-    return r.ping()

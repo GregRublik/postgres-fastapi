@@ -11,6 +11,6 @@ RUN pip install --upgrade pip && \
     poetry install --only main,celery --no-interaction --no-ansi
 
 # Копируем исходный код
-COPY src/task.py src/config.py .env .test.env ./
+COPY src/worker/* src/config.py .env .test.env ./
 
-CMD ["celery", "-A", "task", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "selery_app", "worker", "--loglevel=info"]

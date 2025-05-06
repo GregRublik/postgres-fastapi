@@ -21,6 +21,44 @@ class AbstractRepository(ABC):
     model = None
 
     @abstractmethod
+    async def add_one(self, *args, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def find_one(self, *args, **kwargs):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def find_all(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class RabbitMQRepository(AbstractRepository):
+    """
+    Репозиторий для работы с RabbitMQ
+    """
+    model = None
+
+    @abstractmethod
+    async def add_one(self, session: AsyncSession, data: dict):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def find_one(self, session: AsyncSession, data: dict):
+        raise NotImplementedError
+
+    @abstractmethod
+    async def find_all(self, session: AsyncSession):
+        raise NotImplementedError
+
+
+class RedisRepository(AbstractRepository):
+    """
+    Репозиторий для работы с RabbitMQ
+    """
+    model = None
+
+    @abstractmethod
     async def add_one(self, session: AsyncSession, data: dict):
         raise NotImplementedError
 
