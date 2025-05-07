@@ -1,8 +1,9 @@
-from fastapi import Cookie, APIRouter, Request, WebSocket, Depends
+from fastapi import Cookie, APIRouter, Request, WebSocket, Depends, status, HTTPException
 from depends import get_broker_service
 from typing import Dict, Annotated
 from config import templates
 from services.broker import BrokerService
+from exceptions import QueueEmptyException, MessageConsumeException
 
 main = APIRouter(tags=["main"])
 
@@ -30,6 +31,19 @@ async def create_rabbit_message(
 
 @main.get("/reed_rabbit_message")
 async def reed_rabbit_message(
-        broker_service: Annotated[BrokerService, Depends(get_broker_service)],
+    broker_service: Annotated[BrokerService, Depends(get_broker_service)],
+    queue_name: str,  # todo надо сделать модель
+    timeout: int = 1  # todo надо сделать модель
 ):
-    return await broker_service.get_single_message("first_message")
+    try:
+        return await broker_service.get_single_message(queue_name, timeout)
+    except QueueEmptyException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"success": False, "error": "Message no found with this name"}
+        )
+    except MessageConsumeException:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"success": False, "error": "Ошибка при поиске сообщения"}
+        )
