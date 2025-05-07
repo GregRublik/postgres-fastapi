@@ -174,7 +174,8 @@ class RabbitMQRepository(AbstractRepository):
         except QueueEmpty:
             raise QueueEmptyException(f"Queue {queue_name} is empty")
         except json.JSONDecodeError:
-            await message.ack()  # Подтверждаем, даже если не смогли распарсить
+            await message.ack()  # todo на данный момент сделано так чтобы оно подтверждалось как прочитанное
+                                # todo но наверное лучше возвращать ее обратно в очередь, либо помечать как ошибочное
             raise MessageConsumeException("Invalid JSON message format")
         except Exception as e:
             raise MessageConsumeException(f"Failed to get message: {str(e)}")

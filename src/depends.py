@@ -28,7 +28,7 @@ def get_rabbitmq_repository() -> RabbitMQRepository:
     return RabbitMQRepository()  # connection_string
 
 
-def get_rabbitmq_service(
+def get_broker_service(
         repository: RabbitMQRepository = Depends(get_rabbitmq_repository),
 ) -> broker.BrokerService:
     return broker.BrokerService(repository)

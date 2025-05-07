@@ -1,6 +1,8 @@
-from fastapi import Cookie, APIRouter, Request, WebSocket
+from fastapi import Cookie, APIRouter, Request, WebSocket, Depends
+from depends import get_broker_service
 from typing import Dict, Annotated
 from config import templates
+from services.broker import BrokerService
 
 main = APIRouter(tags=["main"])
 
@@ -19,8 +21,15 @@ async def index(
     })
 
 
-@main.get("rabbit_test/")
-async def index(
-
+@main.post("/create_rabbit_message/")
+async def create_rabbit_message(
+    broker_service: Annotated[BrokerService, Depends(get_broker_service)],
 ):
-    pass
+    new_message = await broker_service.publish_message("first_message", {"detail": 1, "comment": "good"})
+    return new_message
+
+@main.get("/reed_rabbit_message")
+async def reed_rabbit_message(
+        broker_service: Annotated[BrokerService, Depends(get_broker_service)],
+):
+    return await broker_service.get_single_message("first_message")
