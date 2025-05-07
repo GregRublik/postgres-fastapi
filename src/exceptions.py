@@ -9,6 +9,9 @@ class MessageConsumeException(BaseException):
 class QueueEmptyException(BaseException):
     """Очередь пуста"""
 
+class BrokerConnectionException(BaseException):
+    """Ошибка подключения к брокеру"""
+
 class ModelAlreadyExistsException(BaseException):
     pass
 
