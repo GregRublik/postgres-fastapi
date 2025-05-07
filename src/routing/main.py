@@ -32,7 +32,7 @@ async def create_rabbit_message(
 @main.get("/reed_rabbit_message")
 async def reed_rabbit_message(
     broker_service: Annotated[BrokerService, Depends(get_broker_service)],
-    queue_name: str,  # todo надо сделать модель
+    queue_name: str = "first_message",  # todo надо сделать модель
     timeout: int = 1  # todo надо сделать модель
 ):
     try:
