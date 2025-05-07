@@ -29,8 +29,8 @@ async def create_rabbit_message(
     new_message = await broker_service.publish_message("first_message", {"detail": 1, "comment": "good"})
     return new_message
 
-@main.get("/reed_rabbit_message")
-async def reed_rabbit_message(
+@main.get("/read_rabbit_message")
+async def read_rabbit_message(
     broker_service: Annotated[BrokerService, Depends(get_broker_service)],
     queue_name: str = "first_message",  # todo надо сделать модель
     timeout: int = 1  # todo надо сделать модель
@@ -44,6 +44,6 @@ async def reed_rabbit_message(
         )
     except MessageConsumeException:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail={"success": False, "error": "Ошибка при поиске сообщения"}
         )

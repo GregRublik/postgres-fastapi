@@ -93,7 +93,7 @@ class RabbitMQRepository(AbstractRepository):
 
             queue = await self.channel.declare_queue(
                 queue_name,
-                durable=kwargs.get('durable', False)
+                durable=kwargs.get('durable', True)
             )
 
             message_body = json.dumps(message).encode()

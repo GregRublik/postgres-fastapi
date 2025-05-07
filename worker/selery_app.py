@@ -7,10 +7,25 @@ app = Celery(
     backend=f'redis://:{settings.redis.redis_password}@{settings.redis.redis_host}:{settings.redis.redis_port}/0'
 )
 
+app.conf.task_routes = {
+    'tasks.process_message': {'queue': 'first_message'},
+}
+
 app.conf.update(
     task_serializer='json',
     accept_content=['json'],
     result_serializer='json',
     timezone='Europe/Moscow',
     enable_utc=True,
+    task_queues={
+        'first_message': {
+            'exchange': 'first_message',
+            'routing_key': 'first_message',
+        },
+        'celery': {
+            'exchange': 'celery',
+            'routing_key': 'celery',
+        }
+    },
+    task_default_queue='first_message'
 )
