@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import (
     User,
 )
-from exeptions import (
+from exceptions import (
     ModelAlreadyExistsException,
     ModelNoFoundException,
     UserNoFoundException

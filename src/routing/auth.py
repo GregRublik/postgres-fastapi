@@ -9,7 +9,7 @@ from depends import get_user_service, get_jwt_service
 from services.users import UserService
 from services.jwt_services import JWTService, decode_jwt
 from jwt.exceptions import ExpiredSignatureError
-from exeptions import (
+from exceptions import (
     UserAlreadyExistsException,
     UserNoFoundException
 )

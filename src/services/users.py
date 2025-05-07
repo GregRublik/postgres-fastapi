@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Union
 from repositories.repository import AbstractRepository, UserRepository
 from schemas.users import UserCreate, UserLogin, User
-from exeptions import (
+from exceptions import (
     UserAlreadyExistsException,
     ModelAlreadyExistsException,
     ModelNoFoundException,
