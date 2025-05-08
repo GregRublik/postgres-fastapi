@@ -4,26 +4,18 @@ from config import settings
 app = Celery(
     'tasks',
     broker=f'amqp://{settings.rabbitmq.rabbitmq_user}:{settings.rabbitmq.rabbitmq_password}@rabbitmq:5672//',
-    backend=f'redis://:{settings.redis.redis_password}@{settings.redis.redis_host}:{settings.redis.redis_port}/0'
+    # backend=f'redis://:{settings.redis.redis_password}@{settings.redis.redis_host}:{settings.redis.redis_port}/0',
+    include=['tasks']
 )
 
-app.conf.task_routes = {
-    'tasks.process_message': {'queue': 'first_message'},
-}
 
+# Настройки
 app.conf.update(
     task_serializer='json',
     accept_content=['json'],
     result_serializer='json',
-    worker_accept_content=['json'],
-    event_serializer='json',
-    task_compression='gzip',
-    task_queues={
-        'first_message': {
-            'exchange': 'first_message',
-            'exchange_type': 'direct',
-            'routing_key': 'first_message',
-            'durable': True
-        }
-    }
+    timezone='Europe/Moscow',
+    enable_utc=True,
+    task_default_queue='first_message',
+    task_create_missing_queues=True,
 )

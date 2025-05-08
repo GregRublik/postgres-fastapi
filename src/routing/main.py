@@ -28,7 +28,7 @@ async def create_rabbit_message(
     broker_service: Annotated[BrokerService, Depends(get_broker_service)],
     message: CreateMessage
 ):
-    return await broker_service.publish_message(message.queue_name, message.message)
+    return await broker_service.publish_message(message)
 
 
 @main.post("/read_rabbit_message")
@@ -43,8 +43,8 @@ async def read_rabbit_message(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"success": False, "error": "Message no found with this name"}
         )
-    except MessageConsumeException:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail={"success": False, "error": "Ошибка при поиске сообщения"}
-        )
+    # except MessageConsumeException:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_501_NOT_IMPLEMENTED,
+    #         detail={"success": False, "error": "Ошибка при поиске сообщения"}
+    #     )

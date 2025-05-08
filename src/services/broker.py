@@ -1,6 +1,6 @@
 from typing import Union, Dict, Any, Optional, List
 from repositories.repository import AbstractRepository, RabbitMQRepository
-from schemas.messages import MessageSchema, ReadMessage  # Предположим, что у вас есть схема для сообщений
+from schemas.messages import MessageSchema, ReadMessage, CreateMessage
 from exceptions import (
     MessagePublishException,
     MessageConsumeException,
@@ -15,7 +15,7 @@ class BrokerService:
     def __init__(self, repository: Union[AbstractRepository, RabbitMQRepository]):
         self.repository = repository
 
-    async def publish_message(self, queue_name: str, message: Dict[str, Any], **kwargs) -> bool:
+    async def publish_message(self, message: CreateMessage) -> bool:
         """
         Публикация сообщения в очередь
         :param queue_name: Название очереди
@@ -25,7 +25,7 @@ class BrokerService:
         :raises: MessagePublishException при ошибке публикации
         """
         try:
-            await self.repository.add_one(queue_name, message, **kwargs)
+            await self.repository.add_one(message)
             return True
         except Exception as e:
             raise MessagePublishException(f"Failed to publish message: {str(e)}")

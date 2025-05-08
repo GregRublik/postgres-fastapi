@@ -3,6 +3,8 @@ import datetime
 from typing import Optional, List, Dict, Any
 import json
 
+from uuid import uuid4
+
 import aio_pika
 from aio_pika import DeliveryMode
 from aio_pika.exceptions import (
@@ -13,6 +15,7 @@ from aio_pika.exceptions import (
 )
 
 from config import settings
+from schemas.messages import CreateMessage
 
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -81,40 +84,47 @@ class RabbitMQRepository(AbstractRepository):
             # Логируем ошибку закрытия, но не пробрасываем исключение
             print(f"Error closing RabbitMQ connection: {str(e)}")
 
-    async def add_one(self, queue_name: str, message: Dict[str, Any], **kwargs):
+    async def add_one(self, message: CreateMessage):
         """
         Отправка сообщения в очередь RabbitMQ
-        :param queue_name: Название очереди
-        :param message: Сообщение для отправки (словарь)
-        :param kwargs: Дополнительные параметры
+        :param message: Содержит queue_name, message_name, data
         :raises: MessagePublishException при ошибке публикации
         """
         try:
             if not self.connection or not self.channel:
                 await self.connect()
 
+            # Создаем очередь если она еще не создана
             queue = await self.channel.declare_queue(
-                queue_name,
-                durable=kwargs.get('durable', True)
+                message.queue_name,
+                durable=True,
+                auto_delete=False,
+                arguments={
+                    'x-ha-policy': 'all'
+                }
             )
 
-            message_body = json.dumps(message).encode()
-
-            print(type(message_body))
-            print(message_body)
+            # Формируем тип сообщения
+            new_message = {
+                'task': message.message_name,
+                'id': str(uuid4()),
+                'args': [message.data],
+                'kwargs': {}
+            }
 
             await self.channel.default_exchange.publish(
                 aio_pika.Message(
-                    body=message_body,
+                    body=json.dumps(new_message).encode(),
                     content_type='application/json',
-                    delivery_mode=kwargs.get('delivery_mode', 1)
+                    delivery_mode=2,  # Persistent
+                    content_encoding='utf-8',
+                    headers={
+                        'task': message.message_name,
+                        'id': new_message['id']
+                    }
                 ),
-                routing_key=queue_name
+                routing_key=message.queue_name
             )
-        except DeliveryError as e:
-            raise MessagePublishException(f"Message delivery failed: {str(e)}")
-        except ChannelClosed as e:
-            raise MessagePublishException(f"Channel error: {str(e)}")
         except Exception as e:
             raise MessagePublishException(f"Failed to publish message: {str(e)}")
         finally:
@@ -172,7 +182,7 @@ class RabbitMQRepository(AbstractRepository):
             if not self.connection or not self.channel:
                 await self.connect()
 
-            queue = await self.channel.declare_queue(queue_name)
+            queue = await self.channel.declare_queue(queue_name, durable=True)
             message = await queue.get(timeout=timeout, fail=False)
 
             if not message:

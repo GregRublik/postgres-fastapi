@@ -13,4 +13,4 @@ RUN pip install --upgrade pip && \
 # Копируем исходный код
 COPY worker/* src/config.py .env .test.env ./
 
-CMD ["celery", "-A", "selery_app", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "selery_app", "worker", "--loglevel=info", "-Q", "first_message"]

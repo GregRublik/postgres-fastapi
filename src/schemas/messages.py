@@ -11,7 +11,8 @@ class MessageSchema(BaseModel):
 
 class CreateMessage(BaseModel):
     queue_name: str = "first_message"
-    message: dict
+    message_name: str
+    data: dict
 
 
 class ReadMessage(BaseModel):

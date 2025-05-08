@@ -1,16 +1,21 @@
 from fastapi import status, HTTPException
 
+
 class MessagePublishException(BaseException):
     """Ошибка публикации сообщения в брокер"""
+
 
 class MessageConsumeException(BaseException):
     """Ошибка потребления сообщения из брокера"""
 
+
 class QueueEmptyException(BaseException):
     """Очередь пуста"""
 
+
 class BrokerConnectionException(BaseException):
     """Ошибка подключения к брокеру"""
+
 
 class ModelAlreadyExistsException(BaseException):
     pass
