@@ -3,7 +3,9 @@ from selery_app import app
 
 @app.task(
     bind=True,
-    queue="first_message"
+    queue="first_message",
+    serializer='json',
+    acks_late=True,
 )  # rate_limit="10/m"
 def process_message(self, message):
     """

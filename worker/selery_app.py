@@ -15,17 +15,15 @@ app.conf.update(
     task_serializer='json',
     accept_content=['json'],
     result_serializer='json',
-    timezone='Europe/Moscow',
-    enable_utc=True,
+    worker_accept_content=['json'],
+    event_serializer='json',
+    task_compression='gzip',
     task_queues={
         'first_message': {
             'exchange': 'first_message',
+            'exchange_type': 'direct',
             'routing_key': 'first_message',
-        },
-        'celery': {
-            'exchange': 'celery',
-            'routing_key': 'celery',
+            'durable': True
         }
-    },
-    task_default_queue='first_message'
+    }
 )

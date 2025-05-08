@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
+import datetime
 from typing import Optional, List, Dict, Any
 import json
 
 import aio_pika
+from aio_pika import DeliveryMode
 from aio_pika.exceptions import (
     AMQPConnectionError,
     ChannelClosed,
@@ -97,9 +99,14 @@ class RabbitMQRepository(AbstractRepository):
             )
 
             message_body = json.dumps(message).encode()
+
+            print(type(message_body))
+            print(message_body)
+
             await self.channel.default_exchange.publish(
                 aio_pika.Message(
                     body=message_body,
+                    content_type='application/json',
                     delivery_mode=kwargs.get('delivery_mode', 1)
                 ),
                 routing_key=queue_name
@@ -110,6 +117,8 @@ class RabbitMQRepository(AbstractRepository):
             raise MessagePublishException(f"Channel error: {str(e)}")
         except Exception as e:
             raise MessagePublishException(f"Failed to publish message: {str(e)}")
+        finally:
+            await self.close()
 
     async def consume(self, queue_name: str, callback: callable, **kwargs):
         """

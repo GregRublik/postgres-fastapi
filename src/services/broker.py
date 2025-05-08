@@ -1,6 +1,6 @@
 from typing import Union, Dict, Any, Optional, List
 from repositories.repository import AbstractRepository, RabbitMQRepository
-from schemas.messages import MessageSchema  # Предположим, что у вас есть схема для сообщений
+from schemas.messages import MessageSchema, ReadMessage  # Предположим, что у вас есть схема для сообщений
 from exceptions import (
     MessagePublishException,
     MessageConsumeException,
@@ -30,18 +30,17 @@ class BrokerService:
         except Exception as e:
             raise MessagePublishException(f"Failed to publish message: {str(e)}")
 
-    async def get_single_message(self, queue_name: str, timeout: int = 5) -> Optional[Dict[str, Any]]:
+    async def get_single_message(self, mess: ReadMessage) -> Optional[Dict[str, Any]]:
         """
         Получение одного сообщения из очереди
-        :param queue_name: Название очереди
-        :param timeout: Время ожидания сообщения в секундах
+        :param mess: Содержание сообщения
         :return: Сообщение или None если очередь пуста
         :raises: MessageConsumeException при ошибке получения
         """
         try:
-            message = await self.repository.find_one(queue_name, timeout=timeout)
+            message = await self.repository.find_one(mess.queue_name, timeout=mess.timeout)
             if message is None:
-                raise QueueEmptyException(f"Queue {queue_name} is empty")
+                raise QueueEmptyException(f"Queue {mess.queue_name} is empty")
             return message
         except QueueEmptyException:
             raise

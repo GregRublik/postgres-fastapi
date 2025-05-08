@@ -7,3 +7,14 @@ class MessageSchema(BaseModel):
     payload: dict
     timestamp: Optional[float] = None
     metadata: Optional[dict] = None
+
+
+class CreateMessage(BaseModel):
+    queue_name: str = "first_message"
+    message: dict
+
+
+class ReadMessage(BaseModel):
+    queue_name: str = "first_message"
+    timeout: int = 5
+

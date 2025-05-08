@@ -1,3 +1,4 @@
+import sys
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -5,8 +6,10 @@ from sqlalchemy import pool
 from src.config import settings
 from alembic import context
 
-from src.db.models import User  #, UserGroupAssociation, Chat, Group, Message  # noqa надо импортировать все модели
-from src.db.models import Base
+sys.path.append("src/")
+
+from db.models import User  #, UserGroupAssociation, Chat, Group, Message  # noqa надо импортировать все модели
+from db.database import Base
 
 config = context.config
 

@@ -2,6 +2,7 @@ from fastapi import Cookie, APIRouter, Request, WebSocket, Depends, status, HTTP
 from depends import get_broker_service
 from typing import Dict, Annotated
 from config import templates
+from schemas.messages import ReadMessage, CreateMessage
 from services.broker import BrokerService
 from exceptions import QueueEmptyException, MessageConsumeException
 
@@ -25,18 +26,18 @@ async def index(
 @main.post("/create_rabbit_message/")
 async def create_rabbit_message(
     broker_service: Annotated[BrokerService, Depends(get_broker_service)],
+    message: CreateMessage
 ):
-    new_message = await broker_service.publish_message("first_message", {"detail": 1, "comment": "good"})
-    return new_message
+    return await broker_service.publish_message(message.queue_name, message.message)
 
-@main.get("/read_rabbit_message")
+
+@main.post("/read_rabbit_message")
 async def read_rabbit_message(
     broker_service: Annotated[BrokerService, Depends(get_broker_service)],
-    queue_name: str = "first_message",  # todo надо сделать модель
-    timeout: int = 1  # todo надо сделать модель
+    message: ReadMessage
 ):
     try:
-        return await broker_service.get_single_message(queue_name, timeout)
+        return await broker_service.get_single_message(message)
     except QueueEmptyException:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
