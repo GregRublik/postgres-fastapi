@@ -15,7 +15,7 @@ from aio_pika.exceptions import (
 )
 
 from config import settings
-from schemas.messages import CreateMessage
+from schemas.messages import CreateMessage, ReadMessage
 
 from sqlalchemy import insert, select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -169,35 +169,38 @@ class RabbitMQRepository(AbstractRepository):
         except Exception as e:
             raise MessageConsumeException(f"Failed to consume messages: {str(e)}")
 
-    async def find_one(self, queue_name: str, timeout: int = 5) -> Optional[Dict[str, Any]]:
+    async def find_one(self, mess: ReadMessage) -> Optional[Dict[str, Any]]:
         """
         Получение одного сообщения из очереди
-        :param queue_name: Название очереди
-        :param timeout: Время ожидания сообщения
+        :param mess: Информация о сообщении (timeout, queue_name)
         :return: Сообщение или None
         :raises: QueueEmptyException если очередь пуста
         :raises: MessageConsumeException при других ошибках
         """
+        message = None
         try:
             if not self.connection or not self.channel:
                 await self.connect()
 
-            queue = await self.channel.declare_queue(queue_name, durable=True)
-            message = await queue.get(timeout=timeout, fail=False)
+            queue = await self.channel.declare_queue(mess.queue_name, durable=True)
+            message = await queue.get(timeout=mess.timeout, fail=False)
 
             if not message:
-                raise QueueEmptyException(f"Queue {queue_name} is empty")
+                raise QueueEmptyException(f"Queue {mess.queue_name} is empty")
 
+            data = json.loads(message.body.decode())
             await message.ack()
-            return json.loads(message.body.decode())
+            return data
         except QueueEmpty:
-            raise QueueEmptyException(f"Queue {queue_name} is empty")
+            raise QueueEmptyException(f"Queue {mess.queue_name} is empty")
         except json.JSONDecodeError:
-            await message.ack()  # todo на данный момент сделано так чтобы оно подтверждалось как прочитанное
-                                # todo но наверное лучше возвращать ее обратно в очередь, либо помечать как ошибочное
+            if message:
+                await message.nack(requeue=True)
             raise MessageConsumeException("Invalid JSON message format")
         except Exception as e:
             raise MessageConsumeException(f"Failed to get message: {str(e)}")
+        finally:
+            await self.close()
 
     async def find_all(self, queue_name: str, limit: int = 100) -> List[Dict[str, Any]]:
         """

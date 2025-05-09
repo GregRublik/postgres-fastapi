@@ -38,7 +38,7 @@ class BrokerService:
         :raises: MessageConsumeException при ошибке получения
         """
         try:
-            message = await self.repository.find_one(mess.queue_name, timeout=mess.timeout)
+            message = await self.repository.find_one(mess)
             if message is None:
                 raise QueueEmptyException(f"Queue {mess.queue_name} is empty")
             return message
